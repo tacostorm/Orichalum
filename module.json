@@ -1,6 +1,6 @@
 {
-  "id": "nexus-notes",
-  "title": "Nexus Notes",
+  "id": "orichalum",
+  "title": "Orichalum",
   "description": "A vault-based shared note-taking system for players and GMs.",
   "version": "0.1.0",
   "compatibility": {
@@ -9,7 +9,7 @@
   },
   "authors": [{ "name": "YOUR NAME" }],
   "esmodules": ["src/module.js"],
-  "styles": ["styles/nexus-notes.css"],
+  "styles": ["styles/orichalum.css"],
   "languages": [{ "lang": "en", "name": "English", "path": "lang/en.json" }],
   "socket": true,
   "license": "LICENSE",

@@ -17,7 +17,7 @@ export class NexusPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   /** @override */
   static DEFAULT_OPTIONS = {
     id: "nexus-panel",
-    classes: ["nexus-notes", "nexus-panel"],
+    classes: ["orichalum", "nexus-panel"],
     window: {
       title: "NEXUSNOTES.Panel.Title",
       resizable: true,
@@ -35,7 +35,7 @@ export class NexusPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   /** @override */
   static PARTS = {
     panel: {
-      template: "modules/nexus-notes/templates/nexus-panel.hbs",
+      template: "modules/orichalum/templates/nexus-panel.hbs",
       scrollable: [".notes-list"],
     },
   };

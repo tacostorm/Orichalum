@@ -50,21 +50,21 @@ Hooks.once("ready", async () => {
     );
     if (!exists) {
       await Folder.create({ name: VAULT_FOLDER_NAME, type: "JournalEntry", sorting: "a" });
-      console.log("nexus-notes | Created Nexus Vaults folder.");
+      console.log("orichalum | Created Nexus Vaults folder.");
     }
   }
 
   // Register socket listener
   game.socket.on(`module.${MODULE_ID}`, _onSocketMessage);
 
-  console.log("nexus-notes | Ready.");
+  console.log("orichalum | Ready.");
 });
 
 // ── Toolbar Button ─────────────────────────────────────────────────────────────
 
 Hooks.on("getSceneControlButtons", controls => {
   controls.push({
-    name: "nexus-notes",
+    name: "orichalum",
     title: game.i18n.localize("NEXUSNOTES.ToolbarButton"),
     icon: "fa-solid fa-book-open",
     layer: "controls",
@@ -90,7 +90,7 @@ async function _onSocketMessage(data) {
       await _handleVaultCreated(data);
       break;
     default:
-      console.warn(`nexus-notes | Unknown socket event: ${data.type}`);
+      console.warn(`orichalum | Unknown socket event: ${data.type}`);
   }
 }
 
@@ -113,7 +113,7 @@ async function _handleRequestVaultCreation(data) {
   const existing = await NexusVault.getForUser(userId);
   if (!existing) {
     await NexusVault.createForUser(userId);
-    console.log(`nexus-notes | Created vault for user ${userId}.`);
+    console.log(`orichalum | Created vault for user ${userId}.`);
   }
 
   // Notify all clients (the requesting player listens for this)

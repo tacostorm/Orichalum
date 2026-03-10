@@ -1,5 +1,5 @@
 /** The module identifier used for flags, settings, and socket events. */
-export const MODULE_ID = "nexus-notes";
+export const MODULE_ID = "orichalum";
 
 /** Flag keys stored on vault JournalEntries. */
 export const FLAG_KEYS = {

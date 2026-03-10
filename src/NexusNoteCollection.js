@@ -19,7 +19,7 @@ export class NexusNoteCollection {
     try {
       return JSON.parse(page.text.content ?? "[]");
     } catch (err) {
-      console.error(`nexus-notes | Failed to parse notes for vault ${vault.id}:`, err);
+      console.error(`orichalum | Failed to parse notes for vault ${vault.id}:`, err);
       return [];
     }
   }
@@ -50,7 +50,7 @@ export class NexusNoteCollection {
     const notes = await NexusNoteCollection.getAll(vault);
     const idx = notes.findIndex(n => n.id === noteId);
     if (idx === -1) {
-      console.warn(`nexus-notes | Note ${noteId} not found in vault ${vault.id}`);
+      console.warn(`orichalum | Note ${noteId} not found in vault ${vault.id}`);
       return;
     }
     notes[idx] = { ...notes[idx], ...changes, updatedAt: Date.now() };
@@ -80,7 +80,7 @@ export class NexusNoteCollection {
    */
   static async _save(vault, notes) {
     const page = vault.pages.getName(NOTES_PAGE_NAME);
-    if (!page) throw new Error(`nexus-notes | No "${NOTES_PAGE_NAME}" page found in vault ${vault.id}`);
+    if (!page) throw new Error(`orichalum | No "${NOTES_PAGE_NAME}" page found in vault ${vault.id}`);
     await page.update({ "text.content": JSON.stringify(notes) });
   }
 }

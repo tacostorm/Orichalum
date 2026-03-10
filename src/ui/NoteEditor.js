@@ -13,7 +13,7 @@ export class NoteEditor extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "nexus-note-editor",
     tag: "dialog",
-    classes: ["nexus-notes", "note-editor"],
+    classes: ["orichalum", "note-editor"],
     window: {
       title: "NEXUSNOTES.NoteEditor.TitleNew",
       resizable: false,
@@ -27,7 +27,7 @@ export class NoteEditor extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /** @override */
   static PARTS = {
-    form: { template: "modules/nexus-notes/templates/note-editor.hbs" },
+    form: { template: "modules/orichalum/templates/note-editor.hbs" },
   };
 
   /**

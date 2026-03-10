@@ -2,7 +2,7 @@
 
 ## Overview
 
-**Module Name:** `nexus-notes`
+**Module Name:** `orichalum`
 **FoundryVTT Compatibility:** v11+ (ApplicationV2, DataModel API)
 **License:** MIT
 **Description:** A vault-based note-taking system for FoundryVTT. Every player and the GM gets
@@ -31,7 +31,7 @@ view (v0.2) will visualise connections between notes across all visible vaults.
 ## Module File Structure
 
 ```
-nexus-notes/
+orichalum/
 ├── module.json
 ├── LICENSE
 ├── README.md
@@ -53,7 +53,7 @@ nexus-notes/
 │   ├── nexus-panel.hbs            # Main panel template
 │   └── note-editor.hbs            # Note editor dialog template
 ├── styles/
-│   └── nexus-notes.css
+│   └── orichalum.css
 └── lang/
     └── en.json
 ```
@@ -64,7 +64,7 @@ nexus-notes/
 
 ```json
 {
-  "id": "nexus-notes",
+  "id": "orichalum",
   "title": "Nexus Notes",
   "description": "A vault-based shared note-taking system for players and GMs.",
   "version": "0.1.0",
@@ -74,14 +74,14 @@ nexus-notes/
   },
   "authors": [{ "name": "YOUR NAME" }],
   "esmodules": ["src/module.js"],
-  "styles": ["styles/nexus-notes.css"],
+  "styles": ["styles/orichalum.css"],
   "languages": [{ "lang": "en", "name": "English", "path": "lang/en.json" }],
   "socket": true,
   "license": "LICENSE",
   "readme": "README.md",
-  "url": "https://github.com/YOUR_GITHUB/nexus-notes",
-  "manifest": "https://raw.githubusercontent.com/YOUR_GITHUB/nexus-notes/main/module.json",
-  "download": "https://github.com/YOUR_GITHUB/nexus-notes/releases/latest/download/module.zip"
+  "url": "https://github.com/YOUR_GITHUB/orichalum",
+  "manifest": "https://raw.githubusercontent.com/YOUR_GITHUB/orichalum/main/module.json",
+  "download": "https://github.com/YOUR_GITHUB/orichalum/releases/latest/download/module.zip"
 }
 ```
 
@@ -99,7 +99,7 @@ The vault JournalEntry is identified by module flags.
 ```js
 // Vault JournalEntry flags
 {
-  "nexus-notes": {
+  "orichalum": {
     isVault: true,
     ownerId: String    // game.user.id of the owning player
   }
@@ -183,7 +183,7 @@ the vault JournalEntry.
 function canView(note, viewerUser, authorUser) {
   if (viewerUser.isGM) {
     if (note.visibility === "private") {
-      return game.settings.get("nexus-notes", "gmTransparency");
+      return game.settings.get("orichalum", "gmTransparency");
     }
     return true; // party and gm notes always visible to GM
   }
@@ -374,7 +374,7 @@ async function resolveSubject(subjectRef) {
 ```js
 Hooks.on("getSceneControlButtons", (controls) => {
   controls.push({
-    name: "nexus-notes",
+    name: "orichalum",
     title: game.i18n.localize("NEXUSNOTES.ToolbarButton"),
     icon: "fa-solid fa-book-open",
     layer: "controls",
@@ -412,7 +412,7 @@ The first time any user opens Nexus Notes:
 ## Game Settings
 
 ```js
-game.settings.register("nexus-notes", "gmTransparency", {
+game.settings.register("orichalum", "gmTransparency", {
   name: "NEXUSNOTES.Settings.GmTransparency.Name",
   hint: "NEXUSNOTES.Settings.GmTransparency.Hint",
   scope: "world",
@@ -421,7 +421,7 @@ game.settings.register("nexus-notes", "gmTransparency", {
   default: true
 });
 
-game.settings.register("nexus-notes", "defaultVisibility", {
+game.settings.register("orichalum", "defaultVisibility", {
   name: "NEXUSNOTES.Settings.DefaultVisibility.Name",
   hint: "NEXUSNOTES.Settings.DefaultVisibility.Hint",
   scope: "client",
@@ -461,7 +461,7 @@ game.settings.register("nexus-notes", "defaultVisibility", {
 - [ ] `NexusPanel.js` — search bar, My Notes, Party Notes, GM All Vaults sections
 - [ ] `NoteEditor.js` — create/edit dialog, all fields, save/cancel
 - [ ] `nexus-panel.hbs` and `note-editor.hbs` Handlebars templates
-- [ ] `nexus-notes.css` — Foundry-native styling, note cards, visibility badges, tag chips
+- [ ] `orichalum.css` — Foundry-native styling, note cards, visibility badges, tag chips
 
 ### Settings
 - [ ] `gmTransparency` world setting
@@ -488,7 +488,7 @@ Copy and paste this verbatim as your first message in a new Claude Code session,
 with the repo open and DESIGN.md committed:
 
 ```
-I am building a FoundryVTT v11/v12 module called nexus-notes.
+I am building a FoundryVTT v11/v12 module called orichalum.
 The full design document is in DESIGN.md in the repo root. Please read it fully before writing any code.
 
 Implement v0.1 exactly as specified. Use this build order:
@@ -507,7 +507,7 @@ Implement v0.1 exactly as specified. Use this build order:
 12. NexusPanel.js — ApplicationV2 window: search bar, My Notes, Party Notes, GM All Vaults tabs
 13. nexus-panel.hbs and note-editor.hbs Handlebars templates
 14. module.js — entry point, all hooks, toolbar button, settings registration, socket handler
-15. nexus-notes.css — clean Foundry-native styling
+15. orichalum.css — clean Foundry-native styling
 16. en.json — all user-facing strings as localisation keys
 
 Hard requirements:
