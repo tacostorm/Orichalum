@@ -1,6 +1,17 @@
 /* ==========================================================================
    Orichalum — orichalum.css
-   Foundry-native styling using CSS custom properties from the Foundry theme.
+   Uses Foundry v13 theme-aware CSS custom properties so the module renders
+   correctly in both light and dark themes.
+
+   Theme variables used throughout:
+     --color-text-primary     Main text (adapts to theme)
+     --color-text-secondary   Secondary / muted text
+     --color-bg-option        Panel and card backgrounds
+     --color-border-light     All borders
+     --color-shadow-primary   Focus rings and shadows
+
+   Tonal variants are derived with color-mix() rather than separate variables,
+   so they also adapt automatically to any theme.
    ========================================================================== */
 
 /* ── Panel shell ─────────────────────────────────────────────────────────── */
@@ -28,7 +39,7 @@
   align-items: center;
   gap: 6px;
   padding: 4px 6px;
-  border-bottom: 1px solid var(--color-border-light-secondary, #c9c7b8);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .nexus-search-wrap {
@@ -36,14 +47,14 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  background: var(--color-cool-5, #f0ede0);
-  border: 1px solid var(--color-border-dark-secondary, #7a7971);
+  background: var(--color-bg-option);
+  border: 1px solid var(--color-border-light);
   border-radius: 3px;
   padding: 2px 6px;
 }
 
 .nexus-search-wrap i {
-  color: var(--color-text-light-7, #888);
+  color: var(--color-text-secondary);
   font-size: 0.85em;
 }
 
@@ -52,7 +63,7 @@
   border: none;
   background: transparent;
   font-size: var(--font-size-13, 13px);
-  color: var(--color-text-dark-primary, #191813);
+  color: var(--color-text-primary);
   outline: none;
   padding: 2px 0;
 }
@@ -63,21 +74,22 @@
   gap: 4px;
   padding: 3px 8px;
   font-size: var(--font-size-12, 12px);
-  background: var(--color-cool-5, #f0ede0);
-  border: 1px solid var(--color-border-dark-secondary, #7a7971);
+  background: var(--color-bg-option);
+  border: 1px solid var(--color-border-light);
   border-radius: 3px;
   cursor: pointer;
+  color: var(--color-text-primary);
   white-space: nowrap;
 }
 
 .nexus-btn-new:hover {
-  background: var(--color-hover, #e8e4d4);
+  background: color-mix(in srgb, var(--color-bg-option) 80%, var(--color-text-primary) 20%);
 }
 
 /* ── Sections ────────────────────────────────────────────────────────────── */
 
 .nexus-section {
-  border: 1px solid var(--color-border-light-secondary, #c9c7b8);
+  border: 1px solid var(--color-border-light);
   border-radius: 4px;
   overflow: hidden;
   margin: 0 4px;
@@ -88,8 +100,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 4px 8px;
-  background: var(--color-warm-2, #e8d9c0);
-  border-bottom: 1px solid var(--color-border-light-secondary, #c9c7b8);
+  background: color-mix(in srgb, var(--color-bg-option) 70%, var(--color-text-primary) 30%);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .nexus-section-header h3 {
@@ -98,7 +110,7 @@
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--color-text-dark-primary, #191813);
+  color: var(--color-text-primary);
   border: none;
 }
 
@@ -119,20 +131,19 @@
   justify-content: space-between;
   gap: 6px;
   padding: 6px 8px;
-  background: var(--color-cool-5, #f0ede0);
-  border: 1px solid var(--color-border-light-tertiary, #dddccf);
+  background: var(--color-bg-option);
+  border: 1px solid var(--color-border-light);
   border-radius: 3px;
   cursor: default;
   transition: background 0.1s;
 }
 
 .note-card:hover {
-  background: var(--color-warm-1, #f5eedd);
-  border-color: var(--color-border-dark-tertiary, #b5b09e);
+  background: color-mix(in srgb, var(--color-bg-option) 85%, var(--color-text-primary) 15%);
 }
 
 .note-card.is-pinned {
-  border-left: 3px solid var(--color-level-warning, #e8a020);
+  border-left: 3px solid #e8a020;
 }
 
 .note-card-main {
@@ -149,6 +160,7 @@
   gap: 5px;
   font-size: var(--font-size-13, 13px);
   font-weight: bold;
+  color: var(--color-text-primary);
   flex-wrap: wrap;
 }
 
@@ -162,13 +174,13 @@
 
 .pin-icon {
   font-size: 0.75em;
-  color: var(--color-level-warning, #e8a020);
+  color: #e8a020;
   flex-shrink: 0;
 }
 
 .note-author {
   font-size: var(--font-size-11, 11px);
-  color: var(--color-text-light-7, #888);
+  color: var(--color-text-secondary);
   display: flex;
   align-items: center;
   gap: 4px;
@@ -179,10 +191,11 @@
   align-items: center;
   gap: 4px;
   font-size: var(--font-size-11, 11px);
-  color: var(--color-text-dark-secondary, #4b4a44);
+  color: var(--color-text-secondary);
 }
 
 /* ── Visibility badges ───────────────────────────────────────────────────── */
+/* Intentional semantic brand colours — not theme-dependent. */
 
 .vis-badge {
   display: inline-block;
@@ -196,21 +209,21 @@
 }
 
 .vis-private {
-  background: #7B68EE22;
+  background: #7B68EE33;
   border: 1px solid #7B68EE;
-  color: #4a3ab5;
+  color: #a89ff5;
 }
 
 .vis-party {
-  background: #3CB37122;
+  background: #3CB37133;
   border: 1px solid #3CB371;
-  color: #1e7a45;
+  color: #5dd494;
 }
 
 .vis-gm {
-  background: #DC143C22;
+  background: #DC143C33;
   border: 1px solid #DC143C;
-  color: #a00c28;
+  color: #f55075;
 }
 
 /* ── Tag chips ───────────────────────────────────────────────────────────── */
@@ -224,11 +237,11 @@
 .tag-chip {
   display: inline-block;
   padding: 1px 5px;
-  background: var(--color-warm-2, #e8d9c0);
-  border: 1px solid var(--color-border-light-secondary, #c9c7b8);
+  background: color-mix(in srgb, var(--color-bg-option) 60%, var(--color-text-primary) 40%);
+  border: 1px solid var(--color-border-light);
   border-radius: 10px;
   font-size: var(--font-size-10, 10px);
-  color: var(--color-text-dark-secondary, #4b4a44);
+  color: var(--color-text-primary);
 }
 
 /* ── Note card action buttons ────────────────────────────────────────────── */
@@ -250,25 +263,25 @@
   background: transparent;
   border: 1px solid transparent;
   border-radius: 3px;
-  color: var(--color-text-dark-secondary, #4b4a44);
+  color: var(--color-text-secondary);
   cursor: pointer;
   font-size: 0.8em;
 }
 
 .nexus-btn-icon:hover {
-  background: var(--color-hover, #e8e4d4);
-  border-color: var(--color-border-dark-tertiary, #b5b09e);
-  color: var(--color-text-dark-primary, #191813);
+  background: color-mix(in srgb, var(--color-bg-option) 80%, var(--color-text-primary) 20%);
+  border-color: var(--color-border-light);
+  color: var(--color-text-primary);
 }
 
 .nexus-btn-icon.active {
-  color: var(--color-level-warning, #e8a020);
+  color: #e8a020;
 }
 
 .nexus-btn-icon.nexus-btn-danger:hover {
-  background: #f8d7da;
-  border-color: #f5c6cb;
-  color: #721c24;
+  background: #DC143C22;
+  border-color: #DC143C88;
+  color: #f55075;
 }
 
 /* ── GM vault tabs ───────────────────────────────────────────────────────── */
@@ -278,25 +291,24 @@
   flex-wrap: wrap;
   gap: 2px;
   padding: 4px 6px;
-  background: var(--color-cool-4, #e8e4d4);
-  border-bottom: 1px solid var(--color-border-light-secondary, #c9c7b8);
+  background: color-mix(in srgb, var(--color-bg-option) 80%, var(--color-text-primary) 20%);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .vault-tab {
   padding: 2px 8px;
   font-size: var(--font-size-12, 12px);
-  background: var(--color-cool-5, #f0ede0);
-  border: 1px solid var(--color-border-dark-tertiary, #b5b09e);
+  background: var(--color-bg-option);
+  border: 1px solid var(--color-border-light);
   border-radius: 3px;
   cursor: pointer;
-  color: var(--color-text-dark-secondary, #4b4a44);
+  color: var(--color-text-secondary);
 }
 
 .vault-tab:hover,
 .vault-tab.active {
-  background: var(--color-warm-2, #e8d9c0);
-  color: var(--color-text-dark-primary, #191813);
-  border-color: var(--color-border-dark-secondary, #7a7971);
+  background: color-mix(in srgb, var(--color-bg-option) 70%, var(--color-text-primary) 30%);
+  color: var(--color-text-primary);
   font-weight: bold;
 }
 
@@ -306,7 +318,7 @@
   padding: 8px;
   text-align: center;
   font-size: var(--font-size-12, 12px);
-  color: var(--color-text-light-7, #888);
+  color: var(--color-text-secondary);
   font-style: italic;
 }
 
@@ -323,14 +335,15 @@
 }
 
 .nexus-notice-warn {
-  background: #fff3cd;
-  border: 1px solid #ffc107;
-  color: #856404;
+  background: color-mix(in srgb, #e8a020 15%, var(--color-bg-option) 85%);
+  border: 1px solid #e8a020;
+  color: var(--color-text-primary);
 }
 
 .nexus-notice i {
   flex-shrink: 0;
   margin-top: 2px;
+  color: #e8a020;
 }
 
 /* ── Note Editor dialog ──────────────────────────────────────────────────── */
@@ -354,7 +367,7 @@
 .nexus-note-form .form-group label {
   font-size: var(--font-size-12, 12px);
   font-weight: bold;
-  color: var(--color-text-dark-primary, #191813);
+  color: var(--color-text-primary);
 }
 
 .nexus-note-form input[type="text"],
@@ -363,10 +376,10 @@
   width: 100%;
   padding: 4px 6px;
   font-size: var(--font-size-13, 13px);
-  background: var(--color-cool-5, #f0ede0);
-  border: 1px solid var(--color-border-dark-secondary, #7a7971);
+  background: var(--color-bg-option);
+  border: 1px solid var(--color-border-light);
   border-radius: 3px;
-  color: var(--color-text-dark-primary, #191813);
+  color: var(--color-text-primary);
   box-sizing: border-box;
 }
 
@@ -380,8 +393,8 @@
 .nexus-note-form textarea:focus,
 .nexus-note-form select:focus {
   outline: none;
-  border-color: var(--color-border-highlight, #5e72b5);
-  box-shadow: 0 0 0 1px var(--color-border-highlight, #5e72b5);
+  border-color: var(--color-border-light);
+  box-shadow: 0 0 0 2px var(--color-shadow-primary);
 }
 
 .nexus-radio-group {
@@ -396,6 +409,7 @@
   gap: 4px;
   font-size: var(--font-size-13, 13px);
   font-weight: normal;
+  color: var(--color-text-primary);
   cursor: pointer;
 }
 
@@ -416,13 +430,13 @@
 
 .hint {
   font-size: var(--font-size-11, 11px);
-  color: var(--color-text-light-7, #888);
+  color: var(--color-text-secondary);
   font-style: italic;
   margin: 0;
 }
 
 .required {
-  color: var(--color-level-error, #c62a2a);
+  color: #c62a2a;
   margin-left: 2px;
 }
 
@@ -437,7 +451,7 @@
   justify-content: flex-end;
   gap: 6px;
   padding-top: 6px;
-  border-top: 1px solid var(--color-border-light-secondary, #c9c7b8);
+  border-top: 1px solid var(--color-border-light);
   margin-top: 4px;
 }
 
@@ -447,23 +461,23 @@
   gap: 5px;
   padding: 4px 12px;
   font-size: var(--font-size-13, 13px);
-  background: var(--color-cool-5, #f0ede0);
-  border: 1px solid var(--color-border-dark-secondary, #7a7971);
+  background: var(--color-bg-option);
+  border: 1px solid var(--color-border-light);
   border-radius: 3px;
   cursor: pointer;
-  color: var(--color-text-dark-primary, #191813);
+  color: var(--color-text-primary);
 }
 
 .nexus-btn:hover {
-  background: var(--color-hover, #e8e4d4);
+  background: color-mix(in srgb, var(--color-bg-option) 80%, var(--color-text-primary) 20%);
 }
 
 .nexus-btn-primary {
-  background: var(--color-warm-2, #e8d9c0);
-  border-color: var(--color-border-dark-secondary, #7a7971);
+  background: color-mix(in srgb, var(--color-bg-option) 70%, var(--color-text-primary) 30%);
+  border-color: var(--color-border-light);
   font-weight: bold;
 }
 
 .nexus-btn-primary:hover {
-  background: var(--color-warm-3, #d9c8a8);
+  background: color-mix(in srgb, var(--color-bg-option) 60%, var(--color-text-primary) 40%);
 }
