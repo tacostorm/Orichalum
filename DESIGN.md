@@ -372,17 +372,26 @@ async function resolveSubject(subjectRef) {
 ## Toolbar Button Registration (`src/module.js`)
 
 ```js
+// Foundry v13: controls is a Record<string, SceneControl>, not an array.
+// Tools are also a Record. Callback is onChange, not onClick.
 Hooks.on("getSceneControlButtons", (controls) => {
-  controls.push({
+  controls.orichalum = {
     name: "orichalum",
-    title: game.i18n.localize("NEXUSNOTES.ToolbarButton"),
+    title: "NEXUSNOTES.ToolbarButton",
     icon: "fa-solid fa-book-open",
-    layer: "controls",
-    tools: [],
-    activeTool: null,
-    onClick: () => NexusPanel.open(),
-    button: true
-  });
+    tools: {
+      openPanel: {
+        name: "openPanel",
+        title: "NEXUSNOTES.ToolbarButton",
+        icon: "fa-solid fa-book-open",
+        order: 0,
+        button: true,
+        visible: true,
+        onChange: () => NexusPanel.open(),
+      },
+    },
+    activeTool: "openPanel",
+  };
 });
 ```
 

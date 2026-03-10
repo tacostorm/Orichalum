@@ -61,18 +61,31 @@ Hooks.once("ready", async () => {
 });
 
 // ── Toolbar Button ─────────────────────────────────────────────────────────────
+//
+// In Foundry v13 the getSceneControlButtons hook receives a Record<string, SceneControl>
+// instead of an array. Controls are assigned as keyed properties and tools are also a
+// Record. The callback is `onChange`, not `onClick`.
+//
+// Reference: https://foundryvtt.com/api/v13/functions/hookEvents.getSceneControlButtons.html
 
 Hooks.on("getSceneControlButtons", controls => {
-  controls.push({
+  controls.orichalum = {
     name: "orichalum",
-    title: game.i18n.localize("NEXUSNOTES.ToolbarButton"),
+    title: "NEXUSNOTES.ToolbarButton",
     icon: "fa-solid fa-book-open",
-    layer: "controls",
-    tools: [],
-    activeTool: null,
-    onClick: () => NexusPanel.open(),
-    button: true,
-  });
+    tools: {
+      openPanel: {
+        name: "openPanel",
+        title: "NEXUSNOTES.ToolbarButton",
+        icon: "fa-solid fa-book-open",
+        order: 0,
+        button: true,
+        visible: true,
+        onChange: () => NexusPanel.open(),
+      },
+    },
+    activeTool: "openPanel",
+  };
 });
 
 // ── Socket Handler ────────────────────────────────────────────────────────────
