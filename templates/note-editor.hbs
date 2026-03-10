@@ -1,0 +1,118 @@
+<form class="nexus-note-form" autocomplete="off">
+
+  {{!-- Title --}}
+  <div class="form-group">
+    <label for="nn-title">
+      {{localize "NEXUSNOTES.NoteEditor.Title"}}
+      <span class="required" aria-hidden="true">*</span>
+    </label>
+    <input type="text" name="title" id="nn-title"
+           value="{{note.title}}" required autofocus
+           placeholder="{{localize 'NEXUSNOTES.NoteEditor.TitlePlaceholder'}}">
+  </div>
+
+  {{!-- Content --}}
+  <div class="form-group">
+    <label for="nn-content">{{localize "NEXUSNOTES.NoteEditor.Content"}}</label>
+    <textarea name="content" id="nn-content"
+              rows="6"
+              placeholder="{{localize 'NEXUSNOTES.NoteEditor.ContentPlaceholder'}}">{{note.content}}</textarea>
+  </div>
+
+  {{!-- Visibility --}}
+  <div class="form-group">
+    <label>{{localize "NEXUSNOTES.NoteEditor.Visibility"}}</label>
+    <div class="nexus-radio-group">
+      {{#each visibilityOptions}}
+        <label class="radio-label">
+          <input type="radio" name="visibility" value="{{value}}"
+                 {{#if selected}}checked{{/if}}>
+          {{label}}
+        </label>
+      {{/each}}
+    </div>
+  </div>
+
+  {{!-- Subject type --}}
+  <div class="form-group">
+    <label for="nn-subject-type">{{localize "NEXUSNOTES.NoteEditor.SubjectType"}}</label>
+    <select name="subjectType" id="nn-subject-type">
+      {{#each subjectTypeOptions}}
+        <option value="{{value}}"
+          {{#if (eq value ../currentSubjectType)}}selected{{/if}}>
+          {{label}}
+        </option>
+      {{/each}}
+    </select>
+  </div>
+
+  {{!-- Document picker (Actor / Scene / JournalEntry) --}}
+  <div class="form-group subject-document-picker {{#unless showDocumentPicker}}hidden{{/unless}}">
+    <label for="nn-subject-doc">{{localize "NEXUSNOTES.NoteEditor.SubjectDocument"}}</label>
+    {{!-- Actor select --}}
+    <select name="subjectDocumentId" id="nn-subject-doc"
+            class="doc-select" data-type="Actor"
+            {{#unless (eq currentSubjectType "Actor")}}style="display:none"{{/unless}}>
+      <option value="">— {{localize "NEXUSNOTES.NoteEditor.SelectDocument"}} —</option>
+      {{#each actors}}
+        <option value="{{id}}" {{#if (eq id ../currentSubjectId)}}selected{{/if}}>{{name}}</option>
+      {{/each}}
+    </select>
+    {{!-- Scene select --}}
+    <select name="subjectDocumentId"
+            class="doc-select" data-type="Scene"
+            {{#unless (eq currentSubjectType "Scene")}}style="display:none"{{/unless}}>
+      <option value="">— {{localize "NEXUSNOTES.NoteEditor.SelectDocument"}} —</option>
+      {{#each scenes}}
+        <option value="{{id}}" {{#if (eq id ../currentSubjectId)}}selected{{/if}}>{{name}}</option>
+      {{/each}}
+    </select>
+    {{!-- Journal Entry select --}}
+    <select name="subjectDocumentId"
+            class="doc-select" data-type="JournalEntry"
+            {{#unless (eq currentSubjectType "JournalEntry")}}style="display:none"{{/unless}}>
+      <option value="">— {{localize "NEXUSNOTES.NoteEditor.SelectDocument"}} —</option>
+      {{#each journals}}
+        <option value="{{id}}" {{#if (eq id ../currentSubjectId)}}selected{{/if}}>{{name}}</option>
+      {{/each}}
+    </select>
+  </div>
+
+  {{!-- Custom subject label --}}
+  <div class="form-group subject-custom-picker {{#unless showCustomPicker}}hidden{{/unless}}">
+    <label for="nn-subject-custom">{{localize "NEXUSNOTES.NoteEditor.SubjectCustomLabel"}}</label>
+    <input type="text" name="subjectCustomLabel" id="nn-subject-custom"
+           value="{{currentSubjectLabel}}"
+           placeholder="{{localize 'NEXUSNOTES.NoteEditor.SubjectCustomPlaceholder'}}">
+  </div>
+
+  {{!-- Tags --}}
+  <div class="form-group">
+    <label for="nn-tags">{{localize "NEXUSNOTES.NoteEditor.Tags"}}</label>
+    <input type="text" name="tags" id="nn-tags"
+           value="{{tagsString}}"
+           placeholder="{{localize 'NEXUSNOTES.NoteEditor.TagsPlaceholder'}}">
+    <p class="hint">{{localize "NEXUSNOTES.NoteEditor.TagsHint"}}</p>
+  </div>
+
+  {{!-- Pinned --}}
+  <div class="form-group form-group-inline">
+    <label for="nn-pinned">{{localize "NEXUSNOTES.NoteEditor.Pinned"}}</label>
+    <input type="checkbox" name="pinned" id="nn-pinned"
+           {{#if note.pinned}}checked{{/if}}>
+    <p class="hint">{{localize "NEXUSNOTES.NoteEditor.PinnedHint"}}</p>
+  </div>
+
+  {{!-- Footer buttons --}}
+  <div class="form-footer">
+    <button type="button" class="nexus-btn nexus-btn-primary" data-action="save">
+      <i class="fa-solid fa-floppy-disk"></i>
+      {{localize "NEXUSNOTES.Action.Save"}}
+    </button>
+    <button type="button" class="nexus-btn" data-action="cancel">
+      <i class="fa-solid fa-xmark"></i>
+      {{localize "NEXUSNOTES.Action.Cancel"}}
+    </button>
+  </div>
+
+</form>

@@ -1,0 +1,469 @@
+/* ==========================================================================
+   Nexus Notes — nexus-notes.css
+   Foundry-native styling using CSS custom properties from the Foundry theme.
+   ========================================================================== */
+
+/* ── Panel shell ─────────────────────────────────────────────────────────── */
+
+#nexus-panel .window-content {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.nexus-panel-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  padding: 6px 4px;
+  gap: 4px;
+}
+
+/* ── Toolbar (search + new) ──────────────────────────────────────────────── */
+
+.nexus-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--color-border-light-secondary, #c9c7b8);
+}
+
+.nexus-search-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--color-cool-5, #f0ede0);
+  border: 1px solid var(--color-border-dark-secondary, #7a7971);
+  border-radius: 3px;
+  padding: 2px 6px;
+}
+
+.nexus-search-wrap i {
+  color: var(--color-text-light-7, #888);
+  font-size: 0.85em;
+}
+
+.nexus-search {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: var(--font-size-13, 13px);
+  color: var(--color-text-dark-primary, #191813);
+  outline: none;
+  padding: 2px 0;
+}
+
+.nexus-btn-new {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  font-size: var(--font-size-12, 12px);
+  background: var(--color-cool-5, #f0ede0);
+  border: 1px solid var(--color-border-dark-secondary, #7a7971);
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.nexus-btn-new:hover {
+  background: var(--color-hover, #e8e4d4);
+}
+
+/* ── Sections ────────────────────────────────────────────────────────────── */
+
+.nexus-section {
+  border: 1px solid var(--color-border-light-secondary, #c9c7b8);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0 4px;
+}
+
+.nexus-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  background: var(--color-warm-2, #e8d9c0);
+  border-bottom: 1px solid var(--color-border-light-secondary, #c9c7b8);
+}
+
+.nexus-section-header h3 {
+  margin: 0;
+  font-size: var(--font-size-13, 13px);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-dark-primary, #191813);
+  border: none;
+}
+
+/* ── Note cards ──────────────────────────────────────────────────────────── */
+
+.notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.note-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 6px 8px;
+  background: var(--color-cool-5, #f0ede0);
+  border: 1px solid var(--color-border-light-tertiary, #dddccf);
+  border-radius: 3px;
+  cursor: default;
+  transition: background 0.1s;
+}
+
+.note-card:hover {
+  background: var(--color-warm-1, #f5eedd);
+  border-color: var(--color-border-dark-tertiary, #b5b09e);
+}
+
+.note-card.is-pinned {
+  border-left: 3px solid var(--color-level-warning, #e8a020);
+}
+
+.note-card-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.note-card-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--font-size-13, 13px);
+  font-weight: bold;
+  flex-wrap: wrap;
+}
+
+.note-card-title > span:first-of-type {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pin-icon {
+  font-size: 0.75em;
+  color: var(--color-level-warning, #e8a020);
+  flex-shrink: 0;
+}
+
+.note-author {
+  font-size: var(--font-size-11, 11px);
+  color: var(--color-text-light-7, #888);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.note-subject {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-11, 11px);
+  color: var(--color-text-dark-secondary, #4b4a44);
+}
+
+/* ── Visibility badges ───────────────────────────────────────────────────── */
+
+.vis-badge {
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-size: var(--font-size-10, 10px);
+  font-weight: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.vis-private {
+  background: #7B68EE22;
+  border: 1px solid #7B68EE;
+  color: #4a3ab5;
+}
+
+.vis-party {
+  background: #3CB37122;
+  border: 1px solid #3CB371;
+  color: #1e7a45;
+}
+
+.vis-gm {
+  background: #DC143C22;
+  border: 1px solid #DC143C;
+  color: #a00c28;
+}
+
+/* ── Tag chips ───────────────────────────────────────────────────────────── */
+
+.note-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.tag-chip {
+  display: inline-block;
+  padding: 1px 5px;
+  background: var(--color-warm-2, #e8d9c0);
+  border: 1px solid var(--color-border-light-secondary, #c9c7b8);
+  border-radius: 10px;
+  font-size: var(--font-size-10, 10px);
+  color: var(--color-text-dark-secondary, #4b4a44);
+}
+
+/* ── Note card action buttons ────────────────────────────────────────────── */
+
+.note-card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.nexus-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  color: var(--color-text-dark-secondary, #4b4a44);
+  cursor: pointer;
+  font-size: 0.8em;
+}
+
+.nexus-btn-icon:hover {
+  background: var(--color-hover, #e8e4d4);
+  border-color: var(--color-border-dark-tertiary, #b5b09e);
+  color: var(--color-text-dark-primary, #191813);
+}
+
+.nexus-btn-icon.active {
+  color: var(--color-level-warning, #e8a020);
+}
+
+.nexus-btn-icon.nexus-btn-danger:hover {
+  background: #f8d7da;
+  border-color: #f5c6cb;
+  color: #721c24;
+}
+
+/* ── GM vault tabs ───────────────────────────────────────────────────────── */
+
+.nexus-vault-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 4px 6px;
+  background: var(--color-cool-4, #e8e4d4);
+  border-bottom: 1px solid var(--color-border-light-secondary, #c9c7b8);
+}
+
+.vault-tab {
+  padding: 2px 8px;
+  font-size: var(--font-size-12, 12px);
+  background: var(--color-cool-5, #f0ede0);
+  border: 1px solid var(--color-border-dark-tertiary, #b5b09e);
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--color-text-dark-secondary, #4b4a44);
+}
+
+.vault-tab:hover,
+.vault-tab.active {
+  background: var(--color-warm-2, #e8d9c0);
+  color: var(--color-text-dark-primary, #191813);
+  border-color: var(--color-border-dark-secondary, #7a7971);
+  font-weight: bold;
+}
+
+/* ── Empty state ─────────────────────────────────────────────────────────── */
+
+.nexus-empty {
+  padding: 8px;
+  text-align: center;
+  font-size: var(--font-size-12, 12px);
+  color: var(--color-text-light-7, #888);
+  font-style: italic;
+}
+
+/* ── No-GM warning ───────────────────────────────────────────────────────── */
+
+.nexus-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  margin: 8px;
+  border-radius: 4px;
+  font-size: var(--font-size-13, 13px);
+}
+
+.nexus-notice-warn {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #856404;
+}
+
+.nexus-notice i {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* ── Note Editor dialog ──────────────────────────────────────────────────── */
+
+#nexus-note-editor .window-content {
+  padding: 8px 12px;
+}
+
+.nexus-note-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nexus-note-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.nexus-note-form .form-group label {
+  font-size: var(--font-size-12, 12px);
+  font-weight: bold;
+  color: var(--color-text-dark-primary, #191813);
+}
+
+.nexus-note-form input[type="text"],
+.nexus-note-form textarea,
+.nexus-note-form select {
+  width: 100%;
+  padding: 4px 6px;
+  font-size: var(--font-size-13, 13px);
+  background: var(--color-cool-5, #f0ede0);
+  border: 1px solid var(--color-border-dark-secondary, #7a7971);
+  border-radius: 3px;
+  color: var(--color-text-dark-primary, #191813);
+  box-sizing: border-box;
+}
+
+.nexus-note-form textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+.nexus-note-form input[type="text"]:focus,
+.nexus-note-form textarea:focus,
+.nexus-note-form select:focus {
+  outline: none;
+  border-color: var(--color-border-highlight, #5e72b5);
+  box-shadow: 0 0 0 1px var(--color-border-highlight, #5e72b5);
+}
+
+.nexus-radio-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-13, 13px);
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.form-group-inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-group-inline label {
+  flex: 1;
+}
+
+.form-group-inline input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+.hint {
+  font-size: var(--font-size-11, 11px);
+  color: var(--color-text-light-7, #888);
+  font-style: italic;
+  margin: 0;
+}
+
+.required {
+  color: var(--color-level-error, #c62a2a);
+  margin-left: 2px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ── Form footer ─────────────────────────────────────────────────────────── */
+
+.form-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--color-border-light-secondary, #c9c7b8);
+  margin-top: 4px;
+}
+
+.nexus-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  font-size: var(--font-size-13, 13px);
+  background: var(--color-cool-5, #f0ede0);
+  border: 1px solid var(--color-border-dark-secondary, #7a7971);
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--color-text-dark-primary, #191813);
+}
+
+.nexus-btn:hover {
+  background: var(--color-hover, #e8e4d4);
+}
+
+.nexus-btn-primary {
+  background: var(--color-warm-2, #e8d9c0);
+  border-color: var(--color-border-dark-secondary, #7a7971);
+  font-weight: bold;
+}
+
+.nexus-btn-primary:hover {
+  background: var(--color-warm-3, #d9c8a8);
+}
