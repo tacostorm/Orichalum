@@ -14,7 +14,7 @@
   "socket": true,
   "license": "LICENSE",
   "readme": "README.md",
-  "url": "https://github.com/YOUR_GITHUB/nexus-notes",
-  "manifest": "https://raw.githubusercontent.com/YOUR_GITHUB/nexus-notes/main/module.json",
-  "download": "https://github.com/YOUR_GITHUB/nexus-notes/releases/latest/download/module.zip"
+  "url": "https://github.com/tacostorm/Orichalum",
+  "manifest": "https://raw.githubusercontent.com/tacostorm/Orichalum/main/module.json",
+  "download": "https://github.com/tacostorm/Orichalum/releases/latest/download/orichalum.zip"
 }
