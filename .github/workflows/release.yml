@@ -1,27 +1,64 @@
 name: Release
 
+# Fires when a GitHub release is published (which also creates the tag).
+# Create a release from the GitHub UI or with:
+#   gh release create v0.2.0 --generate-notes
 on:
   release:
     types: [published]
 
 permissions:
-  contents: write
+  contents: write   # required to upload release assets
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Create zip
+      # ── Derive plain semver from the release tag ──────────────────────────
+      # Strips a leading 'v' so module.json always gets e.g. '0.2.0', not 'v0.2.0'.
+      - name: Extract version from tag
+        id: version
+        run: |
+          TAG="${{ github.ref_name }}"
+          VERSION="${TAG#v}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Releasing version: ${VERSION}"
+
+      # ── Patch module.json before the zip is built ─────────────────────────
+      # jq writes to a temp file then replaces the original to avoid in-place
+      # truncation issues.
+      - name: Update version in module.json
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          jq --arg v "$VERSION" '.version = $v' module.json > module.json.tmp
+          mv module.json.tmp module.json
+          echo "module.json version set to: $(jq -r '.version' module.json)"
+
+      # ── Build the release zip ─────────────────────────────────────────────
+      # The checkout root IS the module folder, so module.json lands at the top
+      # level of the archive (Foundry requires this — no subdirectory wrapper).
+      # Excluded:
+      #   .git* / .github/  – version control & CI config
+      #   nexus-notes.css   – superseded file, replaced by orichalum.css
+      #   turd-defense.html – dev test file unrelated to the module
+      #   DESIGN.md         – internal design doc
+      #   *.zip             – prevent accidental zip-in-zip
+      - name: Build zip
         run: |
           zip -r orichalum.zip . \
-            --exclude "*.git*" \
-            --exclude ".github/*" \
-            --exclude "DESIGN.md" \
-            --exclude "README.md" \
-            --exclude "*.zip"
+            --exclude "./.git/*" \
+            --exclude "./.gitattributes" \
+            --exclude "./.github/*" \
+            --exclude "./nexus-notes.css" \
+            --exclude "./styles/nexus-notes.css" \
+            --exclude "./turd-defense.html" \
+            --exclude "./DESIGN.md" \
+            --exclude "./*.zip"
 
+      # ── Upload zip to the GitHub release ─────────────────────────────────
       - name: Attach zip to release
         uses: softprops/action-gh-release@v2
         with:
