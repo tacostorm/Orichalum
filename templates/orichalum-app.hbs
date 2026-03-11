@@ -1,0 +1,232 @@
+{{!-- Main Orichalum two-pane layout --}}
+<div class="orichalum-layout">
+
+  {{!-- ── LEFT NAVIGATION PANE ─────────────────────────────────────────── --}}
+  <div class="orichalum-nav">
+    <div class="nav-header">
+      <span>{{localize "NEXUSNOTES.Nav.Folders"}}</span>
+      <button class="btn-graph-toggle icon-btn" title="{{localize "NEXUSNOTES.Nav.GraphToggle"}}">⎘</button>
+    </div>
+
+    <div class="nav-folders">
+      {{#each navFolders}}
+        <div class="nav-folder{{#if this.collapsed}} collapsed{{/if}}" data-folder-id="{{this.id}}">
+          <div class="folder-header">
+            <button class="folder-toggle icon-btn">
+              {{#if this.collapsed}}<i class="fa-solid fa-chevron-right"></i>{{else}}<i class="fa-solid fa-chevron-down"></i>{{/if}}
+            </button>
+            <i class="fa-solid fa-folder folder-icon"></i>
+            <span class="folder-name">{{this.name}}</span>
+            <button class="btn-new-item icon-btn" data-folder-id="{{this.id}}" title="{{localize "NEXUSNOTES.Nav.NewItem"}}">+</button>
+          </div>
+          {{#unless this.collapsed}}
+            <ul class="folder-items">
+              {{#each this.items}}
+                <li class="nav-item{{#if (eq this.id @root.selectedItemId)}} active{{/if}}"
+                    data-item-id="{{this.id}}">
+                  <i class="fa-solid fa-{{#if (eq this.type "character")}}user{{else}}scroll{{/if}} item-icon"></i>
+                  <span>{{this.name}}</span>
+                </li>
+              {{else}}
+                <li class="nav-empty-folder">{{localize "NEXUSNOTES.Nav.EmptyFolder"}}</li>
+              {{/each}}
+            </ul>
+          {{/unless}}
+        </div>
+      {{else}}
+        <div class="nav-hint">{{localize "NEXUSNOTES.Nav.NoFolders"}}</div>
+      {{/each}}
+    </div>
+
+    <div class="nav-footer">
+      <button class="btn-new-folder">
+        <i class="fa-solid fa-folder-plus"></i>
+        {{localize "NEXUSNOTES.Nav.NewFolder"}}
+      </button>
+    </div>
+  </div>
+
+  {{!-- ── RIGHT CONTENT PANE ─────────────────────────────────────────────── --}}
+  <div class="orichalum-content">
+
+    {{#if graphMode}}
+      {{!-- Graph placeholder --}}
+      <div class="graph-placeholder">
+        <i class="fa-solid fa-diagram-project"></i>
+        <p>{{localize "NEXUSNOTES.Graph.ComingSoon"}}</p>
+      </div>
+
+    {{else if selectedItem}}
+      {{!-- Item header --}}
+      <div class="item-header">
+        <h2 class="item-name">{{selectedItem.name}}</h2>
+      </div>
+
+      {{!-- Character fields --}}
+      {{#if characterFields}}
+        <div class="char-fields-section">
+          {{!-- View mode --}}
+          <div class="char-fields-view">
+            {{#each characterFields}}
+              <div class="char-field-row">
+                <span class="char-field-label">{{localize this.label}}</span>
+                <span class="char-field-value">
+                  {{#each this.values}}
+                    {{#if this.isLink}}
+                      <span class="orichalum-wikilink" data-wikilink="{{this.text}}">{{this.text}}</span>
+                    {{else}}
+                      {{this.text}}
+                    {{/if}}
+                    {{#unless @last}}, {{/unless}}
+                  {{/each}}
+                </span>
+              </div>
+            {{/each}}
+            <button class="btn-edit-fields small-btn">
+              <i class="fa-solid fa-pen"></i> {{localize "NEXUSNOTES.Fields.Edit"}}
+            </button>
+          </div>
+          {{!-- Edit mode (hidden until btn-edit-fields clicked) --}}
+          <form class="char-fields-form char-fields-edit hidden">
+            <div class="form-grid">
+              <label>{{localize "NEXUSNOTES.CharField.Race"}}</label>
+              <input type="text" name="race" value="{{selectedItem.characterFields.race}}" />
+              <label>{{localize "NEXUSNOTES.CharField.Home"}}</label>
+              <input type="text" name="home" value="{{selectedItem.characterFields.home}}" />
+              <label>{{localize "NEXUSNOTES.CharField.Occupation"}}</label>
+              <input type="text" name="occupation" value="{{selectedItem.characterFields.occupation}}" />
+              <label>{{localize "NEXUSNOTES.CharField.LastSeen"}}</label>
+              <input type="text" name="lastSeen" value="{{selectedItem.characterFields.lastSeen}}" />
+              <label>{{localize "NEXUSNOTES.CharField.KnownAccomplices"}}</label>
+              <input type="text" name="knownAccomplices"
+                     value="{{join selectedItem.characterFields.knownAccomplices ", "}}"
+                     placeholder="{{localize "NEXUSNOTES.CharField.MultiValueHint"}}" />
+              <label>{{localize "NEXUSNOTES.CharField.Enemies"}}</label>
+              <input type="text" name="enemies"
+                     value="{{join selectedItem.characterFields.enemies ", "}}"
+                     placeholder="{{localize "NEXUSNOTES.CharField.MultiValueHint"}}" />
+            </div>
+            <div class="field-edit-actions">
+              <button type="button" class="btn-save-fields nexus-btn primary">{{localize "NEXUSNOTES.Action.Save"}}</button>
+              <button type="button" class="btn-cancel-fields nexus-btn">{{localize "NEXUSNOTES.Action.Cancel"}}</button>
+            </div>
+          </form>
+        </div>
+      {{/if}}
+
+      {{!-- Links To --}}
+      {{#if linksTo.length}}
+        <div class="links-to-section">
+          <span class="links-to-label">{{localize "NEXUSNOTES.Item.LinksTo"}}:</span>
+          {{#each linksTo}}
+            <span class="orichalum-wikilink" data-wikilink="{{this}}">{{this}}</span>{{#unless @last}}, {{/unless}}
+          {{/each}}
+        </div>
+      {{/if}}
+
+      {{!-- Add Note button --}}
+      {{#unless isEditingAny}}
+        <div class="add-note-bar">
+          <button class="btn-add-note nexus-btn primary">
+            <i class="fa-solid fa-plus"></i> {{localize "NEXUSNOTES.Note.AddNote"}}
+          </button>
+        </div>
+      {{/unless}}
+
+      {{!-- Notes list --}}
+      <div class="notes-list">
+
+        {{!-- New note editor (shown at top when creating) --}}
+        {{#if newNoteSlot}}
+          <div class="note-card note-editor-card">
+            {{> orichalum-note-editor note=newNoteSlot}}
+          </div>
+        {{/if}}
+
+        {{!-- Existing notes --}}
+        {{#each itemNotes}}
+          <div class="note-card{{#if this.isEditing}} is-editing{{/if}}" data-note-id="{{this.id}}">
+            {{#if this.isEditing}}
+              {{> orichalum-note-editor note=this}}
+            {{else}}
+              {{!-- View mode --}}
+              <div class="note-meta">
+                {{#if (eq this.visibility "private")}}
+                  <span class="vis-icon private" title="{{localize "NEXUSNOTES.Visibility.Private"}}">🔒</span>
+                {{else}}
+                  <span class="vis-icon party" title="{{localize "NEXUSNOTES.Visibility.Party"}}">🌐</span>
+                {{/if}}
+                <span class="note-author">{{this.authorDisplay}}</span>
+                <span class="note-time">· {{this.relativeTime}}</span>
+                {{#if this.canEdit}}
+                  <button class="btn-edit-note icon-btn" data-note-id="{{this.id}}" title="{{localize "NEXUSNOTES.Context.EditNote"}}">
+                    <i class="fa-solid fa-pen"></i>
+                  </button>
+                {{/if}}
+                {{#if this.canDelete}}
+                  <button class="btn-delete-note icon-btn danger" data-note-id="{{this.id}}" title="{{localize "NEXUSNOTES.Context.DeleteNote"}}">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                {{/if}}
+              </div>
+              <hr class="note-divider" />
+              <div class="note-body">{{{this.renderedContent}}}</div>
+            {{/if}}
+          </div>
+        {{else}}
+          {{#unless newNoteSlot}}
+            <div class="notes-empty">{{localize "NEXUSNOTES.Note.NoNotes"}}</div>
+          {{/unless}}
+        {{/each}}
+      </div>
+
+    {{else}}
+      {{!-- No item selected --}}
+      <div class="content-empty">
+        <i class="fa-solid fa-book-open"></i>
+        <p>{{localize "NEXUSNOTES.Item.NoneSelected"}}</p>
+      </div>
+    {{/if}}
+  </div>
+</div>
+
+{{!-- ── NOTE EDITOR PARTIAL ─────────────────────────────────────────────── --}}
+{{#*inline "orichalum-note-editor"}}
+  <div class="note-editor">
+    {{!-- Open Table warning --}}
+    {{#if note.openTableWarning}}
+      <div class="open-table-warning">
+        ⚠️ {{localize "NEXUSNOTES.Note.OpenTableWarning"}}
+      </div>
+    {{/if}}
+    {{!-- Visibility + toolbar row --}}
+    <div class="editor-controls">
+      <select class="note-visibility-select">
+        <option value="private"{{#if (eq note.draftVisibility "private")}} selected{{/if}}>🔒 {{localize "NEXUSNOTES.Visibility.Private"}}</option>
+        <option value="party"  {{#if (eq note.draftVisibility "party")}}   selected{{/if}}>🌐 {{localize "NEXUSNOTES.Visibility.Party"}}</option>
+      </select>
+      <div class="editor-toolbar">
+        <button type="button" class="toolbar-btn" data-cmd="bold"        title="Bold"><b>B</b></button>
+        <button type="button" class="toolbar-btn" data-cmd="italic"      title="Italic"><i>I</i></button>
+        <button type="button" class="toolbar-btn" data-cmd="underline"   title="Underline"><u>U</u></button>
+        <button type="button" class="toolbar-btn" data-cmd="insertUnorderedList" title="Bullet list">•</button>
+        <button type="button" class="toolbar-btn" data-cmd="insertOrderedList"   title="Numbered list">1.</button>
+        <button type="button" class="toolbar-btn" data-cmd="formatBlock" data-val="h3" title="Heading">H</button>
+      </div>
+    </div>
+    <hr class="note-divider" />
+    {{!-- Content editable body --}}
+    <div class="note-editor-body"
+         contenteditable="true"
+         data-draft="{{note.draftContent}}"
+         placeholder="{{localize "NEXUSNOTES.Note.Placeholder"}}"></div>
+    {{!-- Footer --}}
+    <div class="editor-footer">
+      <span class="save-hint">Ctrl+S</span>
+      <button type="button" class="btn-cancel-edit nexus-btn">{{localize "NEXUSNOTES.Action.Cancel"}}</button>
+      <button type="button" class="btn-save-note nexus-btn primary">
+        <i class="fa-solid fa-floppy-disk"></i> {{localize "NEXUSNOTES.Action.Save"}}
+      </button>
+    </div>
+  </div>
+{{/inline}}

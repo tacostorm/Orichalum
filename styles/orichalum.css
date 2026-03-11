@@ -1,483 +1,596 @@
 /* ==========================================================================
    Orichalum — orichalum.css
-   Uses Foundry v13 theme-aware CSS custom properties so the module renders
-   correctly in both light and dark themes.
+   All colours use Foundry v13 CSS custom properties so the module is
+   readable in both light and dark themes with no hardcoded hex values.
 
-   Theme variables used throughout:
-     --color-text-primary     Main text (adapts to theme)
-     --color-text-secondary   Secondary / muted text
-     --color-bg-option        Panel and card backgrounds
-     --color-border-light     All borders
-     --color-shadow-primary   Focus rings and shadows
+   Variables used:
+     --color-text-primary      Main body text
+     --color-text-secondary    Muted / secondary text
+     --color-bg-option         Panel / card backgrounds
+     --color-border-light      Borders
+     --color-shadow-primary    Focus rings, shadows
 
-   Tonal variants are derived with color-mix() rather than separate variables,
-   so they also adapt automatically to any theme.
+   Tonal variants are derived with color-mix() so they also adapt
+   automatically to the active theme.
    ========================================================================== */
 
-/* ── Panel shell ─────────────────────────────────────────────────────────── */
+/* ── Window shell ─────────────────────────────────────────────────────────── */
 
-#nexus-panel .window-content {
+#orichalum-app .window-content {
   padding: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.nexus-panel-inner {
+/* ── Two-pane layout ──────────────────────────────────────────────────────── */
+
+.orichalum-layout {
   display: flex;
-  flex-direction: column;
   height: 100%;
-  overflow-y: auto;
-  padding: 6px 4px;
-  gap: 4px;
+  overflow: hidden;
 }
 
-/* ── Toolbar (search + new) ──────────────────────────────────────────────── */
+/* ── LEFT NAV ─────────────────────────────────────────────────────────────── */
 
-.nexus-toolbar {
+.orichalum-nav {
+  width: 200px;
+  min-width: 160px;
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--color-border-light);
+  background: color-mix(in srgb, var(--color-bg-option) 95%, var(--color-text-primary) 5%);
+  overflow: hidden;
+}
+
+.nav-header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 6px;
+  justify-content: space-between;
+  padding: 6px 8px;
+  font-size: 0.7em;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-secondary);
   border-bottom: 1px solid var(--color-border-light);
 }
 
-.nexus-search-wrap {
+.nav-folders {
   flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+/* Folder row */
+.nav-folder {
+  margin-bottom: 2px;
+}
+
+.folder-header {
   display: flex;
   align-items: center;
-  gap: 4px;
-  background: var(--color-bg-option);
-  border: 1px solid var(--color-border-light);
-  border-radius: 3px;
-  padding: 2px 6px;
+  gap: 3px;
+  padding: 3px 6px;
+  cursor: default;
+  user-select: none;
 }
 
-.nexus-search-wrap i {
-  color: var(--color-text-secondary);
-  font-size: 0.85em;
-}
-
-.nexus-search {
-  flex: 1;
-  border: none;
-  background: transparent;
-  font-size: var(--font-size-13, 13px);
-  color: var(--color-text-primary);
-  outline: none;
-  padding: 2px 0;
-}
-
-.nexus-btn-new {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 8px;
-  font-size: var(--font-size-12, 12px);
-  background: var(--color-bg-option);
-  border: 1px solid var(--color-border-light);
-  border-radius: 3px;
-  cursor: pointer;
-  color: var(--color-text-primary);
-  white-space: nowrap;
-}
-
-.nexus-btn-new:hover {
+.folder-header:hover {
   background: color-mix(in srgb, var(--color-bg-option) 80%, var(--color-text-primary) 20%);
 }
 
-/* ── Sections ────────────────────────────────────────────────────────────── */
-
-.nexus-section {
-  border: 1px solid var(--color-border-light);
-  border-radius: 4px;
-  overflow: hidden;
-  margin: 0 4px;
+.folder-toggle {
+  width: 14px;
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.65em;
 }
 
-.nexus-section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 4px 8px;
-  background: color-mix(in srgb, var(--color-bg-option) 70%, var(--color-text-primary) 30%);
-  border-bottom: 1px solid var(--color-border-light);
+.folder-icon {
+  color: var(--color-text-secondary);
+  font-size: 0.85em;
+  flex-shrink: 0;
 }
 
-.nexus-section-header h3 {
-  margin: 0;
-  font-size: var(--font-size-13, 13px);
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--color-text-primary);
-  border: none;
-}
-
-/* ── Note cards ──────────────────────────────────────────────────────────── */
-
-.notes-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 4px;
-  max-height: 260px;
-  overflow-y: auto;
-}
-
-.note-card {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 6px;
-  padding: 6px 8px;
-  background: var(--color-bg-option);
-  border: 1px solid var(--color-border-light);
-  border-radius: 3px;
-  cursor: default;
-  transition: background 0.1s;
-}
-
-.note-card:hover {
-  background: color-mix(in srgb, var(--color-bg-option) 85%, var(--color-text-primary) 15%);
-}
-
-.note-card.is-pinned {
-  border-left: 3px solid #e8a020;
-}
-
-.note-card-main {
+.folder-name {
   flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.note-card-title {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: var(--font-size-13, 13px);
-  font-weight: bold;
+  font-size: 0.85em;
+  font-weight: 600;
   color: var(--color-text-primary);
-  flex-wrap: wrap;
-}
-
-.note-card-title > span:first-of-type {
-  flex: 1;
-  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.pin-icon {
-  font-size: 0.75em;
-  color: #e8a020;
-  flex-shrink: 0;
-}
-
-.note-author {
-  font-size: var(--font-size-11, 11px);
-  color: var(--color-text-secondary);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.note-subject {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: var(--font-size-11, 11px);
-  color: var(--color-text-secondary);
-}
-
-/* ── Visibility badges ───────────────────────────────────────────────────── */
-/* Intentional semantic brand colours — not theme-dependent. */
-
-.vis-badge {
-  display: inline-block;
-  padding: 1px 5px;
-  border-radius: 2px;
-  font-size: var(--font-size-10, 10px);
-  font-weight: normal;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  flex-shrink: 0;
-}
-
-.vis-private {
-  background: #7B68EE33;
-  border: 1px solid #7B68EE;
-  color: #a89ff5;
-}
-
-.vis-party {
-  background: #3CB37133;
-  border: 1px solid #3CB371;
-  color: #5dd494;
-}
-
-.vis-gm {
-  background: #DC143C33;
-  border: 1px solid #DC143C;
-  color: #f55075;
-}
-
-/* ── Tag chips ───────────────────────────────────────────────────────────── */
-
-.note-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-}
-
-.tag-chip {
-  display: inline-block;
-  padding: 1px 5px;
-  background: color-mix(in srgb, var(--color-bg-option) 60%, var(--color-text-primary) 40%);
-  border: 1px solid var(--color-border-light);
-  border-radius: 10px;
-  font-size: var(--font-size-10, 10px);
-  color: var(--color-text-primary);
-}
-
-/* ── Note card action buttons ────────────────────────────────────────────── */
-
-.note-card-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex-shrink: 0;
-}
-
-.nexus-btn-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  padding: 0;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 3px;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  font-size: 0.8em;
-}
-
-.nexus-btn-icon:hover {
-  background: color-mix(in srgb, var(--color-bg-option) 80%, var(--color-text-primary) 20%);
-  border-color: var(--color-border-light);
-  color: var(--color-text-primary);
-}
-
-.nexus-btn-icon.active {
-  color: #e8a020;
-}
-
-.nexus-btn-icon.nexus-btn-danger:hover {
-  background: #DC143C22;
-  border-color: #DC143C88;
-  color: #f55075;
-}
-
-/* ── GM vault tabs ───────────────────────────────────────────────────────── */
-
-.nexus-vault-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px;
-  padding: 4px 6px;
-  background: color-mix(in srgb, var(--color-bg-option) 80%, var(--color-text-primary) 20%);
-  border-bottom: 1px solid var(--color-border-light);
-}
-
-.vault-tab {
-  padding: 2px 8px;
-  font-size: var(--font-size-12, 12px);
-  background: var(--color-bg-option);
-  border: 1px solid var(--color-border-light);
-  border-radius: 3px;
-  cursor: pointer;
-  color: var(--color-text-secondary);
-}
-
-.vault-tab:hover,
-.vault-tab.active {
-  background: color-mix(in srgb, var(--color-bg-option) 70%, var(--color-text-primary) 30%);
-  color: var(--color-text-primary);
+.btn-new-item {
+  opacity: 0;
+  transition: opacity 0.1s;
   font-weight: bold;
-}
-
-/* ── Empty state ─────────────────────────────────────────────────────────── */
-
-.nexus-empty {
-  padding: 8px;
-  text-align: center;
-  font-size: var(--font-size-12, 12px);
   color: var(--color-text-secondary);
-  font-style: italic;
+  font-size: 1em;
+  line-height: 1;
 }
 
-/* ── No-GM warning ───────────────────────────────────────────────────────── */
-
-.nexus-notice {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 10px 12px;
-  margin: 8px;
-  border-radius: 4px;
-  font-size: var(--font-size-13, 13px);
+.folder-header:hover .btn-new-item {
+  opacity: 1;
 }
 
-.nexus-notice-warn {
-  background: color-mix(in srgb, #e8a020 15%, var(--color-bg-option) 85%);
-  border: 1px solid #e8a020;
-  color: var(--color-text-primary);
-}
-
-.nexus-notice i {
-  flex-shrink: 0;
-  margin-top: 2px;
-  color: #e8a020;
-}
-
-/* ── Note Editor dialog ──────────────────────────────────────────────────── */
-
-#nexus-note-editor .window-content {
-  padding: 8px 12px;
-}
-
-.nexus-note-form {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.nexus-note-form .form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.nexus-note-form .form-group label {
-  font-size: var(--font-size-12, 12px);
-  font-weight: bold;
-  color: var(--color-text-primary);
-}
-
-.nexus-note-form input[type="text"],
-.nexus-note-form textarea,
-.nexus-note-form select {
-  width: 100%;
-  padding: 4px 6px;
-  font-size: var(--font-size-13, 13px);
-  background: var(--color-bg-option);
-  border: 1px solid var(--color-border-light);
-  border-radius: 3px;
-  color: var(--color-text-primary);
-  box-sizing: border-box;
-}
-
-.nexus-note-form textarea {
-  resize: vertical;
-  min-height: 80px;
-  font-family: inherit;
-}
-
-.nexus-note-form input[type="text"]:focus,
-.nexus-note-form textarea:focus,
-.nexus-note-form select:focus {
-  outline: none;
-  border-color: var(--color-border-light);
-  box-shadow: 0 0 0 2px var(--color-shadow-primary);
-}
-
-.nexus-radio-group {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.radio-label {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: var(--font-size-13, 13px);
-  font-weight: normal;
-  color: var(--color-text-primary);
-  cursor: pointer;
-}
-
-.form-group-inline {
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-}
-
-.form-group-inline label {
-  flex: 1;
-}
-
-.form-group-inline input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-}
-
-.hint {
-  font-size: var(--font-size-11, 11px);
-  color: var(--color-text-secondary);
-  font-style: italic;
+/* Folder item list */
+.folder-items {
+  list-style: none;
   margin: 0;
+  padding: 0 0 0 24px;
 }
 
-.required {
-  color: #c62a2a;
-  margin-left: 2px;
-}
-
-.hidden {
-  display: none !important;
-}
-
-/* ── Form footer ─────────────────────────────────────────────────────────── */
-
-.form-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 6px;
-  padding-top: 6px;
-  border-top: 1px solid var(--color-border-light);
-  margin-top: 4px;
-}
-
-.nexus-btn {
+.nav-item {
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 12px;
-  font-size: var(--font-size-13, 13px);
+  padding: 3px 8px 3px 4px;
+  font-size: 0.85em;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  border-radius: 3px;
+  margin: 1px 4px 1px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-item:hover {
+  background: color-mix(in srgb, var(--color-bg-option) 75%, var(--color-text-primary) 25%);
+}
+
+.nav-item.active {
+  background: color-mix(in srgb, var(--color-bg-option) 60%, var(--color-text-primary) 40%);
+  font-weight: 600;
+}
+
+.item-icon {
+  color: var(--color-text-secondary);
+  font-size: 0.75em;
+  flex-shrink: 0;
+}
+
+.nav-empty-folder,
+.nav-hint {
+  padding: 3px 8px;
+  font-size: 0.78em;
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+
+.nav-footer {
+  border-top: 1px solid var(--color-border-light);
+  padding: 6px;
+}
+
+.btn-new-folder {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 8px;
+  font-size: 0.82em;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: 1px dashed var(--color-border-light);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.btn-new-folder:hover {
+  background: color-mix(in srgb, var(--color-bg-option) 80%, var(--color-text-primary) 20%);
+  color: var(--color-text-primary);
+}
+
+/* ── RIGHT CONTENT ────────────────────────────────────────────────────────── */
+
+.orichalum-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 12px 16px;
+  gap: 10px;
+}
+
+/* Empty / placeholder states */
+.content-empty,
+.graph-placeholder {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.content-empty i,
+.graph-placeholder i {
+  font-size: 2.5em;
+  opacity: 0.35;
+}
+
+/* Item header */
+.item-header {
+  border-bottom: 1px solid var(--color-border-light);
+  padding-bottom: 6px;
+}
+
+.item-name {
+  margin: 0;
+  font-size: 1.3em;
+  font-weight: bold;
+  color: var(--color-text-primary);
+  border: none;
+}
+
+/* Character fields */
+.char-fields-section {
+  background: color-mix(in srgb, var(--color-bg-option) 90%, var(--color-text-primary) 10%);
+  border: 1px solid var(--color-border-light);
+  border-radius: 4px;
+  padding: 8px 10px;
+}
+
+.char-field-row {
+  display: flex;
+  gap: 8px;
+  font-size: 0.88em;
+  padding: 2px 0;
+}
+
+.char-field-label {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  min-width: 120px;
+  flex-shrink: 0;
+}
+
+.char-field-value {
+  color: var(--color-text-primary);
+  flex: 1;
+}
+
+.char-fields-form .form-grid {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 4px 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.char-fields-form label {
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-align: right;
+}
+
+.char-fields-form input[type="text"] {
+  padding: 3px 6px;
+  font-size: 0.85em;
+  background: var(--color-bg-option);
+  border: 1px solid var(--color-border-light);
+  border-radius: 3px;
+  color: var(--color-text-primary);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.char-fields-form input[type="text"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-shadow-primary);
+}
+
+.field-edit-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+/* Links To */
+.links-to-section {
+  font-size: 0.85em;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.links-to-label {
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+/* Add Note bar */
+.add-note-bar {
+  display: flex;
+}
+
+/* Notes list */
+.notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notes-empty {
+  text-align: center;
+  font-style: italic;
+  font-size: 0.85em;
+  color: var(--color-text-secondary);
+  padding: 12px;
+}
+
+/* Note card */
+.note-card {
+  border: 1px solid var(--color-border-light);
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--color-bg-option);
+}
+
+.note-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  font-size: 0.82em;
+  background: color-mix(in srgb, var(--color-bg-option) 85%, var(--color-text-primary) 15%);
+  flex-wrap: wrap;
+}
+
+.note-author {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.note-time {
+  color: var(--color-text-secondary);
+  flex: 1;
+}
+
+.vis-icon {
+  font-size: 0.9em;
+}
+
+.note-divider {
+  margin: 0;
+  border: none;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.note-body {
+  padding: 8px 10px;
+  font-size: 0.9em;
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  min-height: 1.5em;
+}
+
+.note-body p { margin: 0 0 0.4em; }
+.note-body p:last-child { margin: 0; }
+.note-body ul, .note-body ol { margin: 0.25em 0 0.25em 1.2em; padding: 0; }
+
+/* ── Note editor ──────────────────────────────────────────────────────────── */
+
+.note-editor {
+  display: flex;
+  flex-direction: column;
+}
+
+.open-table-warning {
+  padding: 6px 10px;
+  font-size: 0.82em;
+  background: color-mix(in srgb, var(--color-bg-option) 80%, orange 20%);
+  border-bottom: 1px solid var(--color-border-light);
+  color: var(--color-text-primary);
+}
+
+.editor-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  background: color-mix(in srgb, var(--color-bg-option) 85%, var(--color-text-primary) 15%);
+  flex-wrap: wrap;
+}
+
+.note-visibility-select {
+  font-size: 0.82em;
+  padding: 2px 4px;
+  background: var(--color-bg-option);
+  border: 1px solid var(--color-border-light);
+  border-radius: 3px;
+  color: var(--color-text-primary);
+}
+
+.editor-toolbar {
+  display: flex;
+  gap: 2px;
+}
+
+.toolbar-btn {
+  padding: 2px 6px;
+  font-size: 0.82em;
   background: var(--color-bg-option);
   border: 1px solid var(--color-border-light);
   border-radius: 3px;
   cursor: pointer;
   color: var(--color-text-primary);
+  min-width: 22px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.toolbar-btn:hover {
+  background: color-mix(in srgb, var(--color-bg-option) 70%, var(--color-text-primary) 30%);
+}
+
+.note-editor-body {
+  padding: 8px 10px;
+  font-size: 0.9em;
+  color: var(--color-text-primary);
+  min-height: 80px;
+  line-height: 1.5;
+  outline: none;
+  background: color-mix(in srgb, var(--color-bg-option) 97%, var(--color-text-primary) 3%);
+}
+
+.note-editor-body:focus {
+  background: var(--color-bg-option);
+}
+
+.note-editor-body:empty::before {
+  content: attr(placeholder);
+  color: var(--color-text-secondary);
+  pointer-events: none;
+}
+
+.editor-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-end;
+  padding: 5px 8px;
+  border-top: 1px solid var(--color-border-light);
+  background: color-mix(in srgb, var(--color-bg-option) 85%, var(--color-text-primary) 15%);
+}
+
+.save-hint {
+  font-size: 0.75em;
+  color: var(--color-text-secondary);
+  margin-right: auto;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+
+.nexus-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 0.85em;
+  background: var(--color-bg-option);
+  border: 1px solid var(--color-border-light);
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--color-text-primary);
+  white-space: nowrap;
 }
 
 .nexus-btn:hover {
+  background: color-mix(in srgb, var(--color-bg-option) 75%, var(--color-text-primary) 25%);
+}
+
+.nexus-btn.primary {
+  background: color-mix(in srgb, var(--color-bg-option) 65%, var(--color-text-primary) 35%);
+  font-weight: 600;
+}
+
+.nexus-btn.primary:hover {
+  background: color-mix(in srgb, var(--color-bg-option) 50%, var(--color-text-primary) 50%);
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  padding: 1px 3px;
+  border-radius: 2px;
+  font-size: 0.85em;
+  line-height: 1;
+}
+
+.icon-btn:hover {
+  color: var(--color-text-primary);
   background: color-mix(in srgb, var(--color-bg-option) 80%, var(--color-text-primary) 20%);
 }
 
-.nexus-btn-primary {
-  background: color-mix(in srgb, var(--color-bg-option) 70%, var(--color-text-primary) 30%);
-  border-color: var(--color-border-light);
-  font-weight: bold;
+.icon-btn.danger:hover {
+  color: color-mix(in srgb, red 70%, var(--color-text-primary) 30%);
 }
 
-.nexus-btn-primary:hover {
-  background: color-mix(in srgb, var(--color-bg-option) 60%, var(--color-text-primary) 40%);
+.small-btn {
+  font-size: 0.78em;
+  padding: 2px 7px;
+  margin-top: 4px;
+  background: transparent;
+  border: 1px solid var(--color-border-light);
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+}
+
+.small-btn:hover {
+  background: color-mix(in srgb, var(--color-bg-option) 80%, var(--color-text-primary) 20%);
+  color: var(--color-text-primary);
+}
+
+.btn-graph-toggle {
+  font-size: 1em;
+  font-weight: normal;
+}
+
+/* ── Wiki-links ───────────────────────────────────────────────────────────── */
+
+.orichalum-wikilink {
+  cursor: pointer;
+  color: color-mix(in srgb, var(--color-text-primary) 70%, cornflowerblue 30%);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.orichalum-wikilink:hover {
+  color: color-mix(in srgb, var(--color-text-primary) 50%, cornflowerblue 50%);
+}
+
+.orichalum-wikilink--stub {
+  color: color-mix(in srgb, var(--color-text-secondary) 70%, orange 30%);
+  text-decoration: underline dashed;
+}
+
+/* ── Context menu ─────────────────────────────────────────────────────────── */
+
+.orichalum-context-menu {
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+  background: var(--color-bg-option);
+  border: 1px solid var(--color-border-light);
+  border-radius: 4px;
+  box-shadow: 2px 4px 10px var(--color-shadow-primary);
+  overflow: hidden;
+}
+
+.orichalum-context-menu a {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  font-size: 0.88em;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.orichalum-context-menu a:hover {
+  background: color-mix(in srgb, var(--color-bg-option) 70%, var(--color-text-primary) 30%);
+}
+
+.orichalum-context-menu a i {
+  width: 14px;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+/* ── Utility ──────────────────────────────────────────────────────────────── */
+
+.hidden {
+  display: none !important;
 }

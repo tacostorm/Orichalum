@@ -1,77 +1,104 @@
 {
   "NEXUSNOTES": {
-    "ToolbarButton": "Nexus Notes",
-
-    "Panel": {
-      "Title": "Nexus Notes",
-      "SearchPlaceholder": "Search notes…",
-      "NewNote": "New Note",
-      "MyNotes": "My Notes",
-      "PartyNotes": "Party Notes",
-      "AllVaults": "All Vaults",
-      "NoNotes": "No notes yet. Click + to create one.",
-      "NoPartyNotes": "No party notes from other players.",
-      "NoGM": "Your vault needs to be set up by the GM. Ask them to log in and open Nexus Notes, then try again.",
-      "UnknownAuthor": "Unknown"
+    "App": {
+      "Title": "Orichalum"
     },
 
-    "NoteEditor": {
-      "TitleNew": "New Note",
-      "TitleEdit": "Edit Note",
-      "Title": "Title",
-      "TitlePlaceholder": "e.g. Mira the Innkeeper",
-      "TitleRequired": "A title is required.",
-      "Content": "Content",
-      "ContentPlaceholder": "Write your note here…",
-      "Visibility": "Visibility",
-      "SubjectType": "Subject Type",
-      "SubjectDocument": "Subject",
-      "SelectDocument": "Select a document",
-      "SubjectCustomLabel": "Subject Name",
-      "SubjectCustomPlaceholder": "e.g. The Crimson Brotherhood",
-      "Tags": "Tags",
-      "TagsPlaceholder": "npc, suspicious, quest",
-      "TagsHint": "Comma-separated. Used for search and filtering.",
-      "Pinned": "Pin to top",
-      "PinnedHint": "Pinned notes appear at the top of your list."
+    "Nav": {
+      "Folders":     "Folders",
+      "GraphToggle": "Toggle Graph View",
+      "NewItem":     "New item in this folder",
+      "NewFolder":   "+ New Folder",
+      "EmptyFolder": "(no visible items)",
+      "NoFolders":   "No folders yet."
+    },
+
+    "Graph": {
+      "ComingSoon": "Graph view coming in v0.2."
     },
 
     "Visibility": {
       "Private": "Private",
-      "Party": "Party",
-      "GM": "GM Only"
+      "Party":   "Party"
     },
 
-    "SubjectType": {
-      "None": "None",
-      "Actor": "Actor",
-      "Scene": "Scene",
-      "JournalEntry": "Journal Entry",
-      "Custom": "Custom"
+    "Note": {
+      "AddNote":         "+ Add Note",
+      "NoNotes":         "No notes yet. Click '+ Add Note' to create one.",
+      "Placeholder":     "Write your note here… use [[Item Name]] to link to items.",
+      "OpenTableWarning": "Your GM can still read this note. This can be changed in the module settings."
+    },
+
+    "Item": {
+      "LinksTo":      "Links to",
+      "NoneSelected": "Select an item from the left to view its notes."
+    },
+
+    "Fields": {
+      "Edit": "Edit fields"
+    },
+
+    "CharField": {
+      "Race":             "Race",
+      "Home":             "Home",
+      "Occupation":       "Occupation / Role",
+      "LastSeen":         "Last Seen",
+      "KnownAccomplices": "Known Accomplices",
+      "Enemies":          "Enemies",
+      "MultiValueHint":   "Comma-separated"
     },
 
     "Action": {
-      "Save": "Save",
-      "Cancel": "Cancel",
-      "Edit": "Edit note",
-      "Delete": "Delete note",
-      "TogglePin": "Toggle pin",
-      "Pinned": "Pinned"
+      "Save":    "Save",
+      "Cancel":  "Cancel",
+      "Confirm": "OK",
+      "Move":    "Move"
+    },
+
+    "Context": {
+      "Rename":       "Rename",
+      "Delete":       "Delete",
+      "MoveToFolder": "Move to Folder",
+      "EditNote":     "Edit",
+      "DeleteNote":   "Delete",
+      "AddNote":      "Add Orichalum Note"
+    },
+
+    "Prompt": {
+      "NewFolderTitle":    "New Folder",
+      "NewFolderLabel":    "Folder name",
+      "NewItemTitle":      "New Item",
+      "NewItemLabel":      "Item name",
+      "RenameFolderTitle": "Rename Folder",
+      "RenameFolderLabel": "New name",
+      "RenameItemTitle":   "Rename Item",
+      "RenameItemLabel":   "New name",
+      "MoveItemTitle":     "Move Item",
+      "MoveItemLabel":     "Destination folder"
     },
 
     "Confirm": {
-      "DeleteTitle": "Delete Note",
-      "DeleteContent": "Are you sure you want to delete this note? This cannot be undone."
+      "DeleteNoteTitle":   "Delete Note",
+      "DeleteNoteContent": "Are you sure you want to delete this note? This cannot be undone.",
+      "DeleteFolderTitle": "Delete Folder",
+      "DeleteFolderContent": "Delete this folder and all items and notes inside it? This cannot be undone.",
+      "DeleteItemTitle":   "Delete Item",
+      "DeleteItemContent": "Delete this item and all notes inside it? This cannot be undone.",
+      "UnsavedTitle":      "Unsaved Changes",
+      "UnsavedContent":    "You have unsaved changes. Leave without saving?"
     },
 
     "Settings": {
-      "GmTransparency": {
-        "Name": "GM Transparency",
-        "Hint": "When enabled, the GM can read all private notes from every player's vault. When disabled, the GM only sees their own vault and notes marked Party."
+      "PlayerPrivateVisibility": {
+        "Name":        "Player Private Note Visibility",
+        "Hint":        "Controls whether the GM can read private notes written by players.",
+        "SecretKeeper": "Secret Keeper — private notes are truly private",
+        "OpenTable":   "Open Table — GM can read all notes",
+        "Tooltip":     "Secret Keeper: Private notes are truly private — even the GM cannot read them.\nOpen Table: The GM can read all notes including private ones. Players are warned when writing private notes."
       },
-      "DefaultVisibility": {
+      "DefaultNoteVisibility": {
         "Name": "Default Note Visibility",
-        "Hint": "The visibility level pre-selected when creating a new note."
+        "Hint": "The visibility pre-selected when you create a new note."
       }
     }
   }

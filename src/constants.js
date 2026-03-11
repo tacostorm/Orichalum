@@ -1,63 +1,56 @@
 /** The module identifier used for flags, settings, and socket events. */
 export const MODULE_ID = "orichalum";
 
-/** Flag keys stored on vault JournalEntries. */
-export const FLAG_KEYS = {
-  /** Boolean — marks this JournalEntry as a Nexus vault. */
-  IS_VAULT: "isVault",
-  /** String — the game.users id of the vault owner. */
-  OWNER_ID: "ownerId",
-};
-
 /**
- * Note visibility levels.
+ * Note visibility options.
  * @enum {string}
  */
 export const VISIBILITY = {
-  /** Visible only to the author (and the GM when gmTransparency is on). */
+  /** Visible only to the author (and GM when playerPrivateVisibility = "openTable"). */
   PRIVATE: "private",
   /** Visible to all players and the GM. */
   PARTY: "party",
-  /** Visible only to GM clients. */
-  GM: "gm",
 };
 
 /**
- * Document types a note can reference as its subject.
+ * Player private note visibility world setting values.
  * @enum {string}
  */
-export const SUBJECT_TYPES = {
-  ACTOR: "Actor",
-  SCENE: "Scene",
-  JOURNAL_ENTRY: "JournalEntry",
-  /** Free-text subject not tied to a Foundry document. */
-  CUSTOM: "custom",
-  /** No subject. */
-  NONE: "none",
+export const PRIVATE_VISIBILITY_MODE = {
+  /** Private notes are truly private — the GM cannot read them. */
+  SECRET_KEEPER: "secretKeeper",
+  /** The GM can read all notes including private ones. Players are warned. */
+  OPEN_TABLE: "openTable",
 };
 
 /**
- * Socket event type strings exchanged between clients.
+ * Socket event type strings.
  * @enum {string}
  */
 export const SOCKET_EVENTS = {
-  /** Player → GM: request vault creation for a given userId. */
-  REQUEST_VAULT_CREATION: "requestVaultCreation",
-  /** GM → all clients: vault has been created for a given userId. */
-  VAULT_CREATED: "vaultCreated",
+  /** Any client → GM: perform a write operation on the data store. */
+  WRITE_REQUEST: "writeRequest",
+  /** GM → all clients: data was updated, re-render. */
+  DATA_UPDATED: "dataUpdated",
 };
 
 /**
- * Default node-graph colours by visibility level (used in v0.2; stored now to avoid migration).
+ * Item types — "character" items live in the Characters folder and have extra fields.
+ * @enum {string}
  */
-export const DEFAULT_COLORS = {
-  [VISIBILITY.PRIVATE]: "#7B68EE",
-  [VISIBILITY.PARTY]: "#3CB371",
-  [VISIBILITY.GM]: "#DC143C",
+export const ITEM_TYPE = {
+  CHARACTER: "character",
+  STANDARD:  "standard",
 };
 
-/** Name of the hidden folder that holds all vault JournalEntries. */
-export const VAULT_FOLDER_NAME = "Nexus Vaults";
+/** Flag key marking the data-store JournalEntry. */
+export const DATA_STORE_FLAG = "isDataStore";
 
-/** Name of the JournalEntryPage inside each vault that stores the JSON notes array. */
-export const NOTES_PAGE_NAME = "notes";
+/** Name of the hidden folder holding the data-store JournalEntry. */
+export const DATA_FOLDER_NAME = "Orichalum Data (internal)";
+
+/** Name of the JournalEntryPage that holds the serialised JSON blob. */
+export const DATA_PAGE_NAME = "data";
+
+/** Default folder names created on first launch. */
+export const DEFAULT_FOLDERS = ["Characters", "Misc"];

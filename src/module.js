@@ -1,152 +1,192 @@
 /**
- * Nexus Notes — entry point.
- * Registers settings, hooks, the toolbar button, and the socket handler.
+ * Orichalum — entry point.
+ *
+ * Registers settings, Handlebars helpers, hooks for:
+ *   - toolbar button (getSceneControlButtons, v13 API)
+ *   - data-store initialisation (ready)
+ *   - live re-render on data changes (updateJournalEntryPage)
+ *   - actor right-click integration (getActorContextOptions, getTokenContextOptions)
  */
 
-import { MODULE_ID, SOCKET_EVENTS, VAULT_FOLDER_NAME } from "./constants.js";
-import { NexusVault } from "./NexusVault.js";
-import { NexusPanel } from "./ui/NexusPanel.js";
+import {
+  MODULE_ID,
+  DATA_STORE_FLAG,
+  PRIVATE_VISIBILITY_MODE,
+  VISIBILITY,
+  ITEM_TYPE,
+} from "./constants.js";
+import { OrichalumStore }  from "./data/OrichalumStore.js";
+import { OrichalumItem }   from "./data/OrichalumItem.js";
+import { OrichalumFolder } from "./data/OrichalumFolder.js";
+import { OrichalumApp }    from "./ui/OrichalumApp.js";
 
-// ── Settings ──────────────────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────────────────
 
 Hooks.once("init", () => {
-  /**
-   * World setting: GM can read all private notes from all vaults.
-   * Default: on (transparent play style).
-   */
-  game.settings.register(MODULE_ID, "gmTransparency", {
-    name: "NEXUSNOTES.Settings.GmTransparency.Name",
-    hint: "NEXUSNOTES.Settings.GmTransparency.Hint",
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: true,
-  });
+  // ── Settings ──────────────────────────────────────────────────────────────
 
   /**
-   * Client setting: default visibility for newly created notes.
+   * World setting: how the GM can see private notes.
    */
-  game.settings.register(MODULE_ID, "defaultVisibility", {
-    name: "NEXUSNOTES.Settings.DefaultVisibility.Name",
-    hint: "NEXUSNOTES.Settings.DefaultVisibility.Hint",
-    scope: "client",
+  game.settings.register(MODULE_ID, "playerPrivateVisibility", {
+    name:   "NEXUSNOTES.Settings.PlayerPrivateVisibility.Name",
+    hint:   "NEXUSNOTES.Settings.PlayerPrivateVisibility.Hint",
+    scope:  "world",
     config: true,
-    type: String,
+    type:   String,
     choices: {
-      private: "NEXUSNOTES.Visibility.Private",
-      party:   "NEXUSNOTES.Visibility.Party",
+      [PRIVATE_VISIBILITY_MODE.SECRET_KEEPER]: "NEXUSNOTES.Settings.PlayerPrivateVisibility.SecretKeeper",
+      [PRIVATE_VISIBILITY_MODE.OPEN_TABLE]:    "NEXUSNOTES.Settings.PlayerPrivateVisibility.OpenTable",
     },
-    default: "private",
+    default: PRIVATE_VISIBILITY_MODE.SECRET_KEEPER,
   });
+
+  /** Client setting: pre-selected visibility when creating a new note. */
+  game.settings.register(MODULE_ID, "defaultNoteVisibility", {
+    name:   "NEXUSNOTES.Settings.DefaultNoteVisibility.Name",
+    hint:   "NEXUSNOTES.Settings.DefaultNoteVisibility.Hint",
+    scope:  "client",
+    config: true,
+    type:   String,
+    choices: {
+      [VISIBILITY.PRIVATE]: "NEXUSNOTES.Visibility.Private",
+      [VISIBILITY.PARTY]:   "NEXUSNOTES.Visibility.Party",
+    },
+    default: VISIBILITY.PRIVATE,
+  });
+
+  // ── Handlebars helpers ────────────────────────────────────────────────────
+
+  /** Equality test: {{#if (eq a b)}} */
+  Handlebars.registerHelper("eq", (a, b) => a === b);
+
+  /** Join array to delimited string: {{join arr ", "}} */
+  Handlebars.registerHelper("join", (arr, sep) =>
+    Array.isArray(arr) ? arr.join(typeof sep === "string" ? sep : ", ") : ""
+  );
+
+  console.log("orichalum | Registered settings and Handlebars helpers.");
+});
+
+// ── Settings UI — inject ⓘ tooltip ────────────────────────────────────────────
+
+Hooks.on("renderSettingsConfig", (_app, html) => {
+  const hintEl = html.querySelector(
+    `[data-setting-id="${MODULE_ID}.playerPrivateVisibility"] .notes`
+  );
+  if (!hintEl) return;
+
+  const icon    = document.createElement("span");
+  icon.innerHTML = " ⓘ";
+  icon.title    = game.i18n.localize("NEXUSNOTES.Settings.PlayerPrivateVisibility.Tooltip");
+  icon.style.cssText = "cursor:help;color:var(--color-text-secondary)";
+  hintEl.appendChild(icon);
 });
 
 // ── Ready ─────────────────────────────────────────────────────────────────────
 
 Hooks.once("ready", async () => {
-  // Ensure the Nexus Vaults folder exists for GMs on first login
   if (game.user.isGM) {
-    const exists = game.folders.find(
-      f => f.name === VAULT_FOLDER_NAME && f.type === "JournalEntry"
-    );
-    if (!exists) {
-      await Folder.create({ name: VAULT_FOLDER_NAME, type: "JournalEntry", sorting: "a" });
-      console.log("orichalum | Created Nexus Vaults folder.");
-    }
+    await OrichalumStore.initAsGM();
+    console.log("orichalum | Data store ready.");
   }
-
-  // Register socket listener
-  game.socket.on(`module.${MODULE_ID}`, _onSocketMessage);
-
   console.log("orichalum | Ready.");
 });
 
-// ── Toolbar Button ─────────────────────────────────────────────────────────────
+// ── Live re-render when data store changes ────────────────────────────────────
+
+/**
+ * Foundry broadcasts updateJournalEntryPage to all connected clients whenever
+ * any user saves to the data store page. Re-render the app if it is open.
+ */
+Hooks.on("updateJournalEntryPage", page => {
+  if (page.parent?.getFlag(MODULE_ID, DATA_STORE_FLAG) !== true) return;
+  if (OrichalumApp._instance?.rendered) {
+    OrichalumApp._instance.render();
+  }
+});
+
+// ── Toolbar button (Foundry v13 API) ──────────────────────────────────────────
 //
-// In Foundry v13 the getSceneControlButtons hook receives a Record<string, SceneControl>
-// instead of an array. Controls are assigned as keyed properties and tools are also a
-// Record. The callback is `onChange`, not `onClick`.
-//
+// In v13, getSceneControlButtons receives a Record<string, SceneControl>
+// instead of an array. Tools are also a Record. Callback is `onChange`.
 // Reference: https://foundryvtt.com/api/v13/functions/hookEvents.getSceneControlButtons.html
 
 Hooks.on("getSceneControlButtons", controls => {
   controls.orichalum = {
-    name: "orichalum",
-    title: "NEXUSNOTES.ToolbarButton",
-    icon: "fa-solid fa-book-open",
+    name:  "orichalum",
+    title: "NEXUSNOTES.App.Title",
+    icon:  "fa-solid fa-book-open",
     tools: {
-      openPanel: {
-        name: "openPanel",
-        title: "NEXUSNOTES.ToolbarButton",
-        icon: "fa-solid fa-book-open",
-        order: 0,
-        button: true,
-        visible: true,
-        onChange: () => NexusPanel.open(),
+      open: {
+        name:     "open",
+        title:    "NEXUSNOTES.App.Title",
+        icon:     "fa-solid fa-book-open",
+        order:    0,
+        button:   true,
+        visible:  true,
+        onChange: () => OrichalumApp.open(),
       },
     },
-    activeTool: "openPanel",
+    activeTool: "open",
   };
 });
 
-// ── Socket Handler ────────────────────────────────────────────────────────────
+// ── Actor sidebar right-click ─────────────────────────────────────────────────
 
 /**
- * Dispatch incoming socket messages to the appropriate handler.
- * @param {object} data
+ * Add "Add Orichalum Note" to the Actor sidebar entry context menu.
+ * @param {jQuery}   _html
+ * @param {object[]} options  Mutable context-menu options array.
  */
-async function _onSocketMessage(data) {
-  switch (data.type) {
-    case SOCKET_EVENTS.REQUEST_VAULT_CREATION:
-      await _handleRequestVaultCreation(data);
-      break;
-    case SOCKET_EVENTS.VAULT_CREATED:
-      await _handleVaultCreated(data);
-      break;
-    default:
-      console.warn(`orichalum | Unknown socket event: ${data.type}`);
-  }
-}
-
-/**
- * GM-side handler: create the vault for the requesting player, then broadcast confirmation.
- * Only the active GM client with the lowest user id responds to avoid duplicate creation.
- *
- * @param {{ type: string, userId: string }} data
- */
-async function _handleRequestVaultCreation(data) {
-  if (!game.user.isGM) return;
-
-  // Only the first active GM handles this to prevent race conditions
-  const activeGMs = game.users.filter(u => u.isGM && u.active).sort((a, b) => a.id.localeCompare(b.id));
-  if (activeGMs[0]?.id !== game.user.id) return;
-
-  const { userId } = data;
-
-  // Guard: vault may already exist if two quick open events fired
-  const existing = await NexusVault.getForUser(userId);
-  if (!existing) {
-    await NexusVault.createForUser(userId);
-    console.log(`orichalum | Created vault for user ${userId}.`);
-  }
-
-  // Notify all clients (the requesting player listens for this)
-  game.socket.emit(`module.${MODULE_ID}`, {
-    type: SOCKET_EVENTS.VAULT_CREATED,
-    userId,
+Hooks.on("getActorContextOptions", (_html, options) => {
+  options.push({
+    name:     "NEXUSNOTES.Context.AddNote",
+    icon:     "<i class='fa-solid fa-book-open'></i>",
+    callback: li => {
+      const actorId = li.dataset?.documentId ?? li[0]?.dataset?.documentId;
+      const actor   = game.actors.get(actorId);
+      if (actor) _openNoteForActor(actor);
+    },
   });
-}
+});
+
+// ── Canvas token right-click ──────────────────────────────────────────────────
 
 /**
- * Player-side handler: the vault is now ready — open the panel.
- * The promise resolution in NexusVault.getOrCreateMine handles loading
- * the vault; this handler triggers the panel to render if it is already open.
- *
- * @param {{ type: string, userId: string }} data
+ * Add "Add Orichalum Note" to the canvas token context menu.
+ * @param {jQuery}   _html
+ * @param {object[]} options
  */
-async function _handleVaultCreated(data) {
-  if (data.userId !== game.user.id) return;
-  // The NexusPanel may already be open showing the "no GM" warning — re-render it.
-  if (NexusPanel._instance?.rendered) {
-    NexusPanel._instance.render();
+Hooks.on("getTokenContextOptions", (_html, options) => {
+  options.push({
+    name:     "NEXUSNOTES.Context.AddNote",
+    icon:     "<i class='fa-solid fa-book-open'></i>",
+    callback: token => {
+      const actor = token.actor ?? game.actors.get(token.document?.actorId);
+      if (actor) _openNoteForActor(actor);
+    },
+  });
+});
+
+// ── Helper ────────────────────────────────────────────────────────────────────
+
+/**
+ * Find or create a Character Item for the given actor, then open the
+ * Orichalum window on that item with a new note editor.
+ * @param {Actor} actor
+ * @returns {Promise<void>}
+ */
+async function _openNoteForActor(actor) {
+  const data = await OrichalumStore.getData();
+  let charFolder = (data.folders ?? []).find(f => f.name === "Characters");
+  if (!charFolder) {
+    charFolder = await OrichalumFolder.create("Characters");
   }
+  const { item } = await OrichalumItem.create(
+    charFolder.id,
+    actor.name,
+    ITEM_TYPE.CHARACTER
+  );
+  OrichalumApp.open({ itemId: item.id, newNote: true });
 }
