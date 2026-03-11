@@ -487,7 +487,7 @@ export class OrichalumApp extends HandlebarsApplicationMixin(ApplicationV2) {
     // Remove any existing context menu
     document.querySelector(".orichalum-context-menu")?.remove();
 
-    const menu = document.createElement("nav");
+    const menu = document.createElement("div");
     menu.className = "orichalum-context-menu";
     menu.style.cssText = `position:fixed;left:${event.clientX}px;top:${event.clientY}px;z-index:9999`;
 
@@ -760,8 +760,10 @@ export class OrichalumApp extends HandlebarsApplicationMixin(ApplicationV2) {
       content: dialogContent,
       ok: {
         label:    game.i18n.localize("NEXUSNOTES.Action.Move"),
-        callback: (event, button, dialog) =>
-          dialog.querySelector("[name=folderId]").value,
+        callback: (event, button, dialog) => {
+          const sel = button.form?.elements?.folderId ?? dialog.querySelector("[name=folderId]");
+          return sel?.value ?? null;
+        },
       },
     });
     if (!result) return;
@@ -868,7 +870,10 @@ async function _promptText(title, label, defaultValue = "") {
     </div>`,
     ok: {
       label:    game.i18n.localize("NEXUSNOTES.Action.Confirm"),
-      callback: (event, button, dialog) => dialog.querySelector("[name=value]").value.trim(),
+      callback: (event, button, dialog) => {
+        const input = button.form?.elements?.value ?? dialog.querySelector("input[name=value]");
+        return input?.value?.trim() ?? null;
+      },
     },
   });
 }

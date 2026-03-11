@@ -141,12 +141,15 @@ Hooks.on("getSceneControlButtons", controls => {
  */
 Hooks.on("getActorContextOptions", (_html, options) => {
   options.push({
-    name:     "NEXUSNOTES.Context.AddNote",
-    icon:     "<i class='fa-solid fa-book-open'></i>",
-    callback: li => {
-      const actorId = li.dataset?.documentId ?? li[0]?.dataset?.documentId;
-      const actor   = game.actors.get(actorId);
+    name:      "NEXUSNOTES.Context.AddNote",
+    icon:      "<i class='fa-solid fa-book-open'></i>",
+    condition: () => true,
+    callback:  li => {
+      const el      = li instanceof HTMLElement ? li : li[0];
+      const actorId = el?.dataset?.documentId ?? el?.dataset?.entryId;
+      const actor   = actorId ? game.actors.get(actorId) : null;
       if (actor) _openNoteForActor(actor);
+      else console.warn("orichalum | Could not resolve actor from context menu li:", li);
     },
   });
 });
@@ -160,11 +163,25 @@ Hooks.on("getActorContextOptions", (_html, options) => {
  */
 Hooks.on("getTokenContextOptions", (_html, options) => {
   options.push({
-    name:     "NEXUSNOTES.Context.AddNote",
-    icon:     "<i class='fa-solid fa-book-open'></i>",
-    callback: token => {
-      const actor = token.actor ?? game.actors.get(token.document?.actorId);
+    name:      "NEXUSNOTES.Context.AddNote",
+    icon:      "<i class='fa-solid fa-book-open'></i>",
+    condition: () => true,
+    callback:  target => {
+      let actor;
+      if (target instanceof HTMLElement) {
+        // v13 canvas context menus pass the <li> element
+        const el      = target;
+        const tokenId = el.dataset?.documentId ?? el.dataset?.entryId;
+        const token   = canvas.tokens?.placeables?.find(
+          t => t.id === tokenId || t.document?.id === tokenId
+        );
+        actor = token?.actor;
+      } else {
+        // Token placeable object
+        actor = target.actor ?? game.actors.get(target.document?.actorId);
+      }
       if (actor) _openNoteForActor(actor);
+      else console.warn("orichalum | Could not resolve actor from token context menu target:", target);
     },
   });
 });
