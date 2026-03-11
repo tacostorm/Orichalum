@@ -315,7 +315,7 @@
 .notes-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .notes-empty {
@@ -328,10 +328,11 @@
 
 /* Note card */
 .note-card {
-  border: 1px solid var(--color-border-light);
+  border: 1px solid color-mix(in srgb, var(--color-border-light) 80%, var(--color-text-primary) 20%);
   border-radius: 4px;
   overflow: hidden;
   background: var(--color-bg-option);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--color-shadow-primary) 40%, transparent 60%);
 }
 
 .note-meta {
@@ -402,11 +403,15 @@
 
 .note-visibility-select {
   font-size: 0.82em;
-  padding: 2px 4px;
+  padding: 2px 6px;
+  width: auto;
+  flex: 0 0 auto;
   background: var(--color-bg-option);
   border: 1px solid var(--color-border-light);
   border-radius: 3px;
   color: var(--color-text-primary);
+  cursor: pointer;
+  appearance: auto;
 }
 
 .editor-toolbar {
@@ -439,10 +444,15 @@
   line-height: 1.5;
   outline: none;
   background: color-mix(in srgb, var(--color-bg-option) 97%, var(--color-text-primary) 3%);
+  border: 1px solid var(--color-border-light);
+  border-radius: 3px;
+  margin: 6px 8px;
 }
 
 .note-editor-body:focus {
   background: var(--color-bg-option);
+  border-color: var(--color-shadow-primary);
+  box-shadow: 0 0 0 1px var(--color-shadow-primary);
 }
 
 .note-editor-body:empty::before {

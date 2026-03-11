@@ -63,7 +63,7 @@
       </div>
 
       {{!-- Character fields --}}
-      {{#if characterFields}}
+      {{#if isCharacterItem}}
         <div class="char-fields-section">
           {{!-- View mode --}}
           <div class="char-fields-view">
@@ -95,6 +95,8 @@
               <input type="text" name="home" value="{{selectedItem.characterFields.home}}" />
               <label>{{localize "NEXUSNOTES.CharField.Occupation"}}</label>
               <input type="text" name="occupation" value="{{selectedItem.characterFields.occupation}}" />
+              <label>{{localize "NEXUSNOTES.CharField.Faction"}}</label>
+              <input type="text" name="faction" value="{{selectedItem.characterFields.faction}}" />
               <label>{{localize "NEXUSNOTES.CharField.LastSeen"}}</label>
               <input type="text" name="lastSeen" value="{{selectedItem.characterFields.lastSeen}}" />
               <label>{{localize "NEXUSNOTES.CharField.KnownAccomplices"}}</label>

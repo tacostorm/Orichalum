@@ -155,6 +155,7 @@ export class OrichalumApp extends HandlebarsApplicationMixin(ApplicationV2) {
       newNoteSlot,
       linksTo,
       characterFields,
+      isCharacterItem: selectedItem?.type === ITEM_TYPE.CHARACTER,
       selectedItemId: this._selectedItemId,
       isGM:           viewer.isGM,
       graphMode:      this._graphMode,
@@ -620,6 +621,7 @@ export class OrichalumApp extends HandlebarsApplicationMixin(ApplicationV2) {
       race:              form.querySelector("[name=race]")?.value       ?? "",
       home:              form.querySelector("[name=home]")?.value       ?? "",
       occupation:        form.querySelector("[name=occupation]")?.value ?? "",
+      faction:           form.querySelector("[name=faction]")?.value    ?? "",
       lastSeen:          form.querySelector("[name=lastSeen]")?.value   ?? "",
       knownAccomplices,
       enemies,
@@ -845,12 +847,13 @@ function _prepareCharacterFields(cf, allItems) {
   const link = v => ({ text: v, isLink: itemNames.has(v.toLowerCase()) });
 
   return [
-    { key: "race",              label: "NEXUSNOTES.CharField.Race",       values: cf.race       ? [link(cf.race)]       : [] },
-    { key: "home",              label: "NEXUSNOTES.CharField.Home",       values: cf.home       ? [link(cf.home)]       : [] },
-    { key: "occupation",        label: "NEXUSNOTES.CharField.Occupation", values: cf.occupation ? [link(cf.occupation)] : [] },
-    { key: "lastSeen",          label: "NEXUSNOTES.CharField.LastSeen",   values: cf.lastSeen   ? [link(cf.lastSeen)]   : [] },
-    { key: "knownAccomplices",  label: "NEXUSNOTES.CharField.KnownAccomplices", values: (cf.knownAccomplices ?? []).map(link) },
-    { key: "enemies",           label: "NEXUSNOTES.CharField.Enemies",    values: (cf.enemies ?? []).map(link)          },
+    { key: "race",              label: "NEXUSNOTES.CharField.Race",              values: cf.race       ? [link(cf.race)]       : [] },
+    { key: "home",              label: "NEXUSNOTES.CharField.Home",              values: cf.home       ? [link(cf.home)]       : [] },
+    { key: "occupation",        label: "NEXUSNOTES.CharField.Occupation",        values: cf.occupation ? [link(cf.occupation)] : [] },
+    { key: "faction",           label: "NEXUSNOTES.CharField.Faction",           values: cf.faction    ? [link(cf.faction)]    : [] },
+    { key: "lastSeen",          label: "NEXUSNOTES.CharField.LastSeen",          values: cf.lastSeen   ? [link(cf.lastSeen)]   : [] },
+    { key: "knownAccomplices",  label: "NEXUSNOTES.CharField.KnownAccomplices",  values: (cf.knownAccomplices ?? []).map(link) },
+    { key: "enemies",           label: "NEXUSNOTES.CharField.Enemies",           values: (cf.enemies ?? []).map(link)          },
   ].filter(f => f.values.length > 0);
 }
 

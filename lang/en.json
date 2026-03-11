@@ -42,6 +42,7 @@
       "Race":             "Race",
       "Home":             "Home",
       "Occupation":       "Occupation / Role",
+      "Faction":          "Faction",
       "LastSeen":         "Last Seen",
       "KnownAccomplices": "Known Accomplices",
       "Enemies":          "Enemies",
