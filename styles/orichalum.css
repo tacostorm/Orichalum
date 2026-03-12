@@ -382,6 +382,7 @@
 .note-editor {
   display: flex;
   flex-direction: column;
+  position: relative; /* anchor for help popover */
 }
 
 .open-table-warning {
@@ -436,29 +437,67 @@
   background: color-mix(in srgb, var(--color-bg-option) 70%, var(--color-text-primary) 30%);
 }
 
+/* Markdown cheat sheet popover */
+.toolbar-help-popover {
+  position: absolute;
+  top: 34px;
+  right: 8px;
+  z-index: 200;
+  background: var(--color-bg-main-window, var(--color-bg-option, #2a2a2a));
+  border: 1px solid var(--color-border-light);
+  border-radius: 4px;
+  box-shadow: 2px 4px 10px var(--color-shadow-primary);
+  padding: 8px 12px;
+  font-size: 0.82em;
+  line-height: 1.9;
+  white-space: nowrap;
+  color: var(--color-text-primary);
+}
+
+.toolbar-help-popover p {
+  margin: 0;
+}
+
+.md-help-title {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  font-size: 0.78em;
+  letter-spacing: 0.06em;
+  margin-bottom: 2px !important;
+}
+
+.toolbar-help-popover code {
+  background: color-mix(in srgb, var(--color-bg-option) 80%, var(--color-text-primary) 20%);
+  border: 1px solid var(--color-border-light);
+  border-radius: 2px;
+  padding: 0 3px;
+  font-size: 0.95em;
+  font-family: monospace;
+  color: var(--color-text-primary);
+}
+
 .note-editor-body {
   padding: 8px 10px;
   font-size: 0.9em;
+  font-family: inherit;
   color: var(--color-text-primary);
-  min-height: 80px;
+  min-height: 100px;
   line-height: 1.5;
   outline: none;
   background: color-mix(in srgb, var(--color-bg-option) 97%, var(--color-text-primary) 3%);
   border: 1px solid var(--color-border-light);
   border-radius: 3px;
   margin: 6px 8px;
+  resize: vertical;
+  width: calc(100% - 16px);
+  box-sizing: border-box;
 }
 
 .note-editor-body:focus {
   background: var(--color-bg-option);
   border-color: var(--color-shadow-primary);
   box-shadow: 0 0 0 1px var(--color-shadow-primary);
-}
-
-.note-editor-body:empty::before {
-  content: attr(placeholder);
-  color: var(--color-text-secondary);
-  pointer-events: none;
 }
 
 .editor-footer {

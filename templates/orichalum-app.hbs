@@ -208,20 +208,27 @@
         <option value="party"  {{#if (eq note.draftVisibility "party")}}   selected{{/if}}>🌐 {{localize "NEXUSNOTES.Visibility.Party"}}</option>
       </select>
       <div class="editor-toolbar">
-        <button type="button" class="toolbar-btn" data-cmd="bold"        title="Bold"><b>B</b></button>
-        <button type="button" class="toolbar-btn" data-cmd="italic"      title="Italic"><i>I</i></button>
-        <button type="button" class="toolbar-btn" data-cmd="underline"   title="Underline"><u>U</u></button>
+        <button type="button" class="toolbar-btn" data-cmd="bold"                title="Bold"><b>B</b></button>
+        <button type="button" class="toolbar-btn" data-cmd="italic"              title="Italic"><i>I</i></button>
+        <button type="button" class="toolbar-btn" data-cmd="underline"           title="Underline"><u>U</u></button>
         <button type="button" class="toolbar-btn" data-cmd="insertUnorderedList" title="Bullet list">•</button>
         <button type="button" class="toolbar-btn" data-cmd="insertOrderedList"   title="Numbered list">1.</button>
-        <button type="button" class="toolbar-btn" data-cmd="formatBlock" data-val="h3" title="Heading">H</button>
+        <button type="button" class="toolbar-btn" data-cmd="formatBlock"         title="Heading">H</button>
+        <button type="button" class="toolbar-btn" data-cmd="removeFormat"        title="Remove formatting">✕</button>
+        <button type="button" class="toolbar-btn toolbar-help-btn"               title="Markdown help">?</button>
       </div>
     </div>
+    {{!-- Markdown cheat sheet popover --}}
+    <div class="toolbar-help-popover hidden">
+      <p class="md-help-title">Markdown reference</p>
+      <p><code>**bold**</code> &nbsp; <code>*italic*</code> &nbsp; <code>__underline__</code></p>
+      <p><code># Heading</code> &nbsp; <code>- bullet</code> &nbsp; <code>1. numbered</code></p>
+      <p><code>[[wiki-link]]</code> — links to another item</p>
+    </div>
     <hr class="note-divider" />
-    {{!-- Content editable body --}}
-    <div class="note-editor-body"
-         contenteditable="true"
-         data-draft="{{note.draftContent}}"
-         placeholder="{{localize "NEXUSNOTES.Note.Placeholder"}}"></div>
+    {{!-- Markdown textarea --}}
+    <textarea class="note-editor-body"
+              placeholder="{{localize "NEXUSNOTES.Note.Placeholder"}}">{{note.draftContent}}</textarea>
     {{!-- Footer --}}
     <div class="editor-footer">
       <span class="save-hint">Ctrl+S</span>

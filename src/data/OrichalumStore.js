@@ -27,6 +27,11 @@ import {
 /** @typedef {{ folders: object[], items: object[], notes: object[] }} StoreData */
 
 export class OrichalumStore {
+  /** @type {StoreData|null} Last successfully parsed state; returned on parse failures. */
+  static _lastKnownGoodData = null;
+
+  /** @type {boolean} Whether a parse-error warning has already been logged this session. */
+  static _parseErrorLogged = false;
   // ── Initialisation ─────────────────────────────────────────────────────────
 
   /**
@@ -89,17 +94,27 @@ export class OrichalumStore {
    * @returns {Promise<StoreData>}
    */
   static async getData() {
+    const fallback = OrichalumStore._lastKnownGoodData ?? { folders: [], items: [], notes: [] };
+
     const journal = OrichalumStore._findDataJournal();
-    if (!journal) return { folders: [], items: [], notes: [] };
+    if (!journal) return fallback;
 
     const page = journal.pages.getName(DATA_PAGE_NAME);
-    if (!page) return { folders: [], items: [], notes: [] };
+    if (!page) return fallback;
 
     try {
-      return JSON.parse(page.text.content ?? "{}");
+      const parsed = JSON.parse(page.text.content ?? "{}");
+      // Cache the successfully parsed state and reset the one-shot warning flag
+      OrichalumStore._lastKnownGoodData = parsed;
+      OrichalumStore._parseErrorLogged  = false;
+      return parsed;
     } catch (err) {
-      console.error("orichalum | Failed to parse data store:", err);
-      return { folders: [], items: [], notes: [] };
+      // Log the warning exactly once per run of bad data to avoid console spam
+      if (!OrichalumStore._parseErrorLogged) {
+        console.warn("orichalum | Data store parse failed — using last known good state.", err);
+        OrichalumStore._parseErrorLogged = true;
+      }
+      return fallback;
     }
   }
 

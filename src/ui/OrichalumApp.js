@@ -121,8 +121,8 @@ export class OrichalumApp extends HandlebarsApplicationMixin(ApplicationV2) {
               canDelete:     canEditNote(note, viewer),
               openTableWarning,
               renderedContent: isEditing
-                ? (this._draftContent)
-                : renderWikiLinks(note.content ?? "", allItems),
+                ? ""
+                : renderWikiLinks(_renderMarkdown(note.content ?? ""), allItems),
               draftContent:    isEditing ? this._draftContent    : "",
               draftVisibility: isEditing ? this._draftVisibility : note.visibility,
             };
@@ -318,33 +318,57 @@ export class OrichalumApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   // ── Editor toolbar ────────────────────────────────────────────────────────
 
-  /** Wire execCommand toolbar buttons. @private */
+  /** Wire markdown toolbar buttons and help popover toggle. @private */
   _setupEditorToolbar() {
     const toolbar = this.element.querySelector(".editor-toolbar");
     if (!toolbar) return;
 
     toolbar.querySelectorAll("[data-cmd]").forEach(btn => {
       btn.addEventListener("mousedown", e => {
-        e.preventDefault(); // prevent editor losing focus
-        const cmd  = btn.dataset.cmd;
-        const val  = btn.dataset.val ?? null;
-        document.execCommand(cmd, false, val);
+        e.preventDefault(); // prevent textarea losing focus
+        const editor = this.element.querySelector(".note-editor-body");
+        if (!editor) return;
+        _applyMarkdown(editor, btn.dataset.cmd, btn.dataset.val);
         this._markDirty();
       });
     });
+
+    // Help button — toggle popover
+    const helpBtn = toolbar.querySelector(".toolbar-help-btn");
+    if (helpBtn) {
+      helpBtn.addEventListener("mousedown", e => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.element.querySelector(".toolbar-help-popover")?.classList.toggle("hidden");
+      });
+      // Dismiss popover on any outside click
+      document.addEventListener("mousedown", e => {
+        const popover = this.element?.querySelector(".toolbar-help-popover");
+        if (!popover || popover.classList.contains("hidden")) return;
+        if (!helpBtn.contains(e.target) && !popover.contains(e.target)) {
+          popover.classList.add("hidden");
+        }
+      }, { capture: true });
+    }
   }
 
-  /** Restore the draft content into the contenteditable after re-render. @private */
+  /** Attach input, paste, and keyboard listeners to the markdown textarea. @private */
   _restoreEditorState() {
-    const editor = this.element.querySelector(".note-editor-body[contenteditable]");
+    const editor = this.element.querySelector(".note-editor-body");
     if (!editor) return;
 
-    // Set inner HTML from draft (already set as data attribute via template)
-    if (editor.dataset.draft !== undefined) {
-      editor.innerHTML = editor.dataset.draft;
-    }
-
     editor.addEventListener("input", () => this._markDirty());
+
+    // Strip paste to plain text only — prevents HTML/rich-text from corrupting JSON storage
+    editor.addEventListener("paste", e => {
+      e.preventDefault();
+      const text  = e.clipboardData.getData("text/plain");
+      const start = editor.selectionStart;
+      const end   = editor.selectionEnd;
+      editor.value = editor.value.slice(0, start) + text + editor.value.slice(end);
+      editor.selectionStart = editor.selectionEnd = start + text.length;
+      this._markDirty();
+    });
 
     // Ctrl+S saves
     editor.addEventListener("keydown", e => {
@@ -526,9 +550,9 @@ export class OrichalumApp extends HandlebarsApplicationMixin(ApplicationV2) {
    * @private
    */
   _syncEditorBeforeRender() {
-    const editor = this.element?.querySelector(".note-editor-body[contenteditable]");
+    const editor = this.element?.querySelector(".note-editor-body");
     if (editor) {
-      this._draftContent = editor.innerHTML;
+      this._draftContent = editor.value;
     }
   }
 
@@ -537,8 +561,8 @@ export class OrichalumApp extends HandlebarsApplicationMixin(ApplicationV2) {
    * @private
    */
   async _saveCurrentNote() {
-    const editor = this.element?.querySelector(".note-editor-body[contenteditable]");
-    if (editor) this._draftContent = editor.innerHTML;
+    const editor = this.element?.querySelector(".note-editor-body");
+    if (editor) this._draftContent = editor.value;
 
     const content    = this._draftContent;
     const visibility = this._draftVisibility;
@@ -855,6 +879,91 @@ function _prepareCharacterFields(cf, allItems) {
     { key: "knownAccomplices",  label: "NEXUSNOTES.CharField.KnownAccomplices",  values: (cf.knownAccomplices ?? []).map(link) },
     { key: "enemies",           label: "NEXUSNOTES.CharField.Enemies",           values: (cf.enemies ?? []).map(link)          },
   ].filter(f => f.values.length > 0);
+}
+
+/**
+ * Render raw markdown to HTML using marked.js (loaded via module.json scripts).
+ * Falls back to a simple newline→<br> conversion if marked is not available.
+ * @param {string} markdown
+ * @returns {string} HTML string
+ */
+function _renderMarkdown(markdown) {
+  if (typeof window.marked !== "undefined") {
+    return window.marked.parse(markdown);
+  }
+  // Minimal fallback: escape HTML then convert newlines
+  return markdown
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\n/g, "<br>");
+}
+
+/**
+ * Apply markdown syntax to the selected range inside a textarea.
+ * Inline formats (bold, italic, underline) wrap the selection.
+ * Block formats (heading, lists) prefix the current line.
+ * @param {HTMLTextAreaElement} ta   The textarea element.
+ * @param {string}              cmd  Command string matching data-cmd values.
+ * @param {string}              [val] Optional value (unused in markdown mode).
+ */
+function _applyMarkdown(ta, cmd, val) {
+  const start    = ta.selectionStart;
+  const end      = ta.selectionEnd;
+  const selected = ta.value.slice(start, end);
+  const before   = ta.value.slice(0, start);
+  const after    = ta.value.slice(end);
+
+  // Helper: replace selection with `replacement`, place cursor at end of it
+  const wrap = (replacement) => {
+    ta.value = before + replacement + after;
+    ta.selectionStart = start;
+    ta.selectionEnd   = start + replacement.length;
+    ta.focus();
+  };
+
+  // Helper: prefix the start of the current line
+  const prefixLine = (prefix) => {
+    const lineStart = before.lastIndexOf("\n") + 1;
+    ta.value = ta.value.slice(0, lineStart) + prefix + ta.value.slice(lineStart);
+    ta.selectionStart = ta.selectionEnd = start + prefix.length;
+    ta.focus();
+  };
+
+  switch (cmd) {
+    case "bold":
+      wrap(selected ? `**${selected}**` : "**bold text**");
+      break;
+    case "italic":
+      wrap(selected ? `*${selected}*` : "*italic text*");
+      break;
+    case "underline":
+      wrap(selected ? `__${selected}__` : "__underline text__");
+      break;
+    case "formatBlock":
+      prefixLine("# ");
+      break;
+    case "insertUnorderedList":
+      prefixLine("- ");
+      break;
+    case "insertOrderedList":
+      prefixLine("1. ");
+      break;
+    case "removeFormat":
+      if (selected) {
+        const stripped = selected
+          .replace(/\*\*([^*]+)\*\*/g, "$1")
+          .replace(/__([^_]+)__/g, "$1")
+          .replace(/\*([^*]+)\*/g, "$1")
+          .replace(/^#{1,6}\s+/gm, "")
+          .replace(/^[-*]\s+/gm, "")
+          .replace(/^\d+\.\s+/gm, "");
+        wrap(stripped);
+      }
+      break;
+    default:
+      break;
+  }
 }
 
 /**

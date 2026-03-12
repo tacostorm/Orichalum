@@ -14,7 +14,3 @@ A vault-based note-taking system for FoundryVTT. Every player and the GM gets a 
 ## Installation
 
 Install via the Foundry module manager using the manifest URL, or download the zip from the releases page.
-
-## Development
-
-See `DESIGN.md` for the full architecture and roadmap.
