@@ -2,7 +2,7 @@
   "id": "orichalum",
   "title": "Orichalum",
   "description": "A vault-based shared note-taking system for players and GMs.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "compatibility": {
     "minimum": "11",
     "verified": "13"

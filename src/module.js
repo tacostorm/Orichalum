@@ -6,12 +6,13 @@
  *   - data-store initialisation (ready)
  *   - live re-render on data changes (updateJournalEntryPage)
  *   - actor right-click integration (getActorContextOptions, getTokenContextOptions)
+ *   - settings panel danger zone (renderSettingsConfig)
  */
 
 import {
   MODULE_ID,
   DATA_STORE_FLAG,
-  PRIVATE_VISIBILITY_MODE,
+  DEFAULT_FOLDERS,
   VISIBILITY,
   ITEM_TYPE,
 } from "./constants.js";
@@ -23,24 +24,6 @@ import { OrichalumApp }    from "./ui/OrichalumApp.js";
 // ── Init ──────────────────────────────────────────────────────────────────────
 
 Hooks.once("init", () => {
-  // ── Settings ──────────────────────────────────────────────────────────────
-
-  /**
-   * World setting: how the GM can see private notes.
-   */
-  game.settings.register(MODULE_ID, "playerPrivateVisibility", {
-    name:   "NEXUSNOTES.Settings.PlayerPrivateVisibility.Name",
-    hint:   "NEXUSNOTES.Settings.PlayerPrivateVisibility.Hint",
-    scope:  "world",
-    config: true,
-    type:   String,
-    choices: {
-      [PRIVATE_VISIBILITY_MODE.SECRET_KEEPER]: "NEXUSNOTES.Settings.PlayerPrivateVisibility.SecretKeeper",
-      [PRIVATE_VISIBILITY_MODE.OPEN_TABLE]:    "NEXUSNOTES.Settings.PlayerPrivateVisibility.OpenTable",
-    },
-    default: PRIVATE_VISIBILITY_MODE.SECRET_KEEPER,
-  });
-
   /** Client setting: pre-selected visibility when creating a new note. */
   game.settings.register(MODULE_ID, "defaultNoteVisibility", {
     name:   "NEXUSNOTES.Settings.DefaultNoteVisibility.Name",
@@ -49,10 +32,10 @@ Hooks.once("init", () => {
     config: true,
     type:   String,
     choices: {
-      [VISIBILITY.PRIVATE]: "NEXUSNOTES.Visibility.Private",
-      [VISIBILITY.PARTY]:   "NEXUSNOTES.Visibility.Party",
+      [VISIBILITY.SECRET]: "NEXUSNOTES.Visibility.Secret",
+      [VISIBILITY.PARTY]:  "NEXUSNOTES.Visibility.Party",
     },
-    default: VISIBILITY.PRIVATE,
+    default: VISIBILITY.SECRET,
   });
 
   // ── Handlebars helpers ────────────────────────────────────────────────────
@@ -68,19 +51,39 @@ Hooks.once("init", () => {
   console.log("orichalum | Registered settings and Handlebars helpers.");
 });
 
-// ── Settings UI — inject ⓘ tooltip ────────────────────────────────────────────
+// ── Settings UI — inject Danger Zone ──────────────────────────────────────────
 
 Hooks.on("renderSettingsConfig", (_app, html) => {
-  const hintEl = html.querySelector(
-    `[data-setting-id="${MODULE_ID}.playerPrivateVisibility"] .notes`
-  );
-  if (!hintEl) return;
+  if (!game.user.isGM) return;
 
-  const icon    = document.createElement("span");
-  icon.innerHTML = " ⓘ";
-  icon.title    = game.i18n.localize("NEXUSNOTES.Settings.PlayerPrivateVisibility.Tooltip");
-  icon.style.cssText = "cursor:help;color:var(--color-text-secondary)";
-  hintEl.appendChild(icon);
+  // Locate the section that contains our module's settings
+  const anySetting = html.querySelector(`[data-setting-id^="${MODULE_ID}."]`);
+  if (!anySetting) return;
+  const section = anySetting.closest("section, fieldset") ?? anySetting.parentElement;
+  if (!section) return;
+
+  const zone = document.createElement("div");
+  zone.className = "orichalum-danger-zone";
+  zone.innerHTML = `
+    <h3 class="danger-zone-title">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      ${game.i18n.localize("NEXUSNOTES.Settings.DangerZone.Title")}
+    </h3>
+    <p class="danger-zone-desc">${game.i18n.localize("NEXUSNOTES.Settings.DangerZone.Desc")}</p>
+    <div class="danger-zone-buttons">
+      <button type="button" class="danger-btn" data-action="reset-my">
+        <i class="fa-solid fa-user-minus"></i>
+        ${game.i18n.localize("NEXUSNOTES.Settings.DangerZone.ResetMy")}
+      </button>
+      <button type="button" class="danger-btn danger-btn--full" data-action="reset-world">
+        <i class="fa-solid fa-skull"></i>
+        ${game.i18n.localize("NEXUSNOTES.Settings.DangerZone.ResetWorld")}
+      </button>
+    </div>`;
+  section.appendChild(zone);
+
+  zone.querySelector("[data-action='reset-my']")?.addEventListener("click", _resetMyNotes);
+  zone.querySelector("[data-action='reset-world']")?.addEventListener("click", _resetWorldData);
 });
 
 // ── Ready ─────────────────────────────────────────────────────────────────────
@@ -110,7 +113,6 @@ Hooks.on("updateJournalEntryPage", page => {
 //
 // In v13, getSceneControlButtons receives a Record<string, SceneControl>
 // instead of an array. Tools are also a Record. Callback is `onChange`.
-// Reference: https://foundryvtt.com/api/v13/functions/hookEvents.getSceneControlButtons.html
 
 Hooks.on("getSceneControlButtons", controls => {
   controls.orichalum = {
@@ -169,15 +171,12 @@ Hooks.on("getTokenContextOptions", (_html, options) => {
     callback:  target => {
       let actor;
       if (target instanceof HTMLElement) {
-        // v13 canvas context menus pass the <li> element
-        const el      = target;
-        const tokenId = el.dataset?.documentId ?? el.dataset?.entryId;
+        const tokenId = target.dataset?.documentId ?? target.dataset?.entryId;
         const token   = canvas.tokens?.placeables?.find(
           t => t.id === tokenId || t.document?.id === tokenId
         );
         actor = token?.actor;
       } else {
-        // Token placeable object
         actor = target.actor ?? game.actors.get(target.document?.actorId);
       }
       if (actor) _openNoteForActor(actor);
@@ -186,7 +185,7 @@ Hooks.on("getTokenContextOptions", (_html, options) => {
   });
 });
 
-// ── Helper ────────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 /**
  * Find or create a Character Item for the given actor, then open the
@@ -206,4 +205,91 @@ async function _openNoteForActor(actor) {
     ITEM_TYPE.CHARACTER
   );
   OrichalumApp.open({ itemId: item.id, newNote: true });
+}
+
+/**
+ * Trigger a browser download of the current Orichalum data as a JSON backup.
+ * @param {object} data  The full data blob from OrichalumStore.getData().
+ */
+function _downloadBackup(data) {
+  const json      = JSON.stringify(data, null, 2);
+  const blob      = new Blob([json], { type: "application/json" });
+  const url       = URL.createObjectURL(blob);
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const a         = document.createElement("a");
+  a.href          = url;
+  a.download      = `orichalum-backup-${timestamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * Reset only the current user's notes (GM version: resets GM's own notes).
+ * Downloads a backup first, then deletes notes authored by this user.
+ */
+async function _resetMyNotes() {
+  const confirmed = await foundry.applications.api.DialogV2.confirm({
+    window:  { title: game.i18n.localize("NEXUSNOTES.Settings.DangerZone.ResetMyTitle") },
+    content: `<p>${game.i18n.localize("NEXUSNOTES.Settings.DangerZone.ResetMyContent")}</p>`,
+  });
+  if (!confirmed) return;
+
+  const data = await OrichalumStore.getData();
+  _downloadBackup(data);
+
+  await OrichalumStore.mutate(d => {
+    d.notes = (d.notes ?? []).filter(n => n.authorId !== game.user.id);
+  });
+
+  ui.notifications.info(game.i18n.localize("NEXUSNOTES.Settings.DangerZone.ResetSuccess"));
+  if (OrichalumApp._instance?.rendered) OrichalumApp._instance.render();
+}
+
+/**
+ * Full world reset — wipes ALL Orichalum data for all players.
+ * Requires the GM to type "RESET" to confirm, then shows a final confirmation.
+ * Downloads a backup first.
+ */
+async function _resetWorldData() {
+  // Step 1: require typing "RESET"
+  const typed = await foundry.applications.api.DialogV2.prompt({
+    window:  { title: game.i18n.localize("NEXUSNOTES.Settings.DangerZone.ResetWorldTitle") },
+    content: `
+      <p>${game.i18n.localize("NEXUSNOTES.Settings.DangerZone.ResetWorldContent")}</p>
+      <div class="form-group">
+        <label>${game.i18n.localize("NEXUSNOTES.Settings.DangerZone.TypeReset")}</label>
+        <input type="text" name="confirm" placeholder="RESET" autocomplete="off" />
+      </div>`,
+    ok: {
+      label:    game.i18n.localize("NEXUSNOTES.Settings.DangerZone.ResetWorldBtn"),
+      callback: (_event, button) => {
+        const val = button.form?.elements?.confirm?.value ?? "";
+        return val === "RESET" ? "RESET" : null;
+      },
+    },
+  });
+  if (typed !== "RESET") return;
+
+  // Step 2: final are-you-sure confirmation
+  const confirmed = await foundry.applications.api.DialogV2.confirm({
+    window:  { title: game.i18n.localize("NEXUSNOTES.Settings.DangerZone.ResetWorldTitle") },
+    content: `<p>${game.i18n.localize("NEXUSNOTES.Settings.DangerZone.ResetWorldFinal")}</p>`,
+  });
+  if (!confirmed) return;
+
+  // Download backup then wipe
+  const data = await OrichalumStore.getData();
+  _downloadBackup(data);
+
+  const defaultFolders = DEFAULT_FOLDERS.map((name, i) => ({
+    id:   foundry.utils.randomID(),
+    name,
+    sort: i,
+  }));
+  await OrichalumStore.setData({ folders: defaultFolders, items: [], notes: [] });
+
+  ui.notifications.info(game.i18n.localize("NEXUSNOTES.Settings.DangerZone.ResetSuccess"));
+  if (OrichalumApp._instance?.rendered) OrichalumApp._instance.render();
 }

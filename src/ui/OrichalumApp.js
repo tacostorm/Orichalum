@@ -7,12 +7,12 @@
  * Open via OrichalumApp.open().
  */
 
-import { MODULE_ID, VISIBILITY, PRIVATE_VISIBILITY_MODE, ITEM_TYPE } from "../constants.js";
+import { MODULE_ID, VISIBILITY, ITEM_TYPE } from "../constants.js";
 import { OrichalumStore }  from "../data/OrichalumStore.js";
 import { OrichalumFolder } from "../data/OrichalumFolder.js";
 import { OrichalumItem }   from "../data/OrichalumItem.js";
 import { OrichalumNote }   from "../data/OrichalumNote.js";
-import { canSeeNote, canEditNote, filterVisibleNotes } from "../helpers/visibility.js";
+import { canSeeNote, canEditNote, filterVisibleNotes, normalizeVisibility } from "../helpers/visibility.js";
 import { renderWikiLinks }  from "../helpers/wikilinks.js";
 import { computeLinksTo }   from "../helpers/linksTo.js";
 
@@ -49,7 +49,7 @@ export class OrichalumApp extends HandlebarsApplicationMixin(ApplicationV2) {
     /** @type {string} Draft content of the note being edited. */
     this._draftContent    = "";
     /** @type {string} Draft visibility of the note being edited. */
-    this._draftVisibility = game.settings.get(MODULE_ID, "defaultNoteVisibility") ?? VISIBILITY.PRIVATE;
+    this._draftVisibility = game.settings.get(MODULE_ID, "defaultNoteVisibility") ?? VISIBILITY.SECRET;
     /** @type {boolean} Whether edit mode has unsaved changes. */
     this._dirty           = false;
     /** @type {boolean} Whether the graph view is active. */
@@ -86,7 +86,6 @@ export class OrichalumApp extends HandlebarsApplicationMixin(ApplicationV2) {
         ...folder,
         items:     folderItems,
         collapsed: this._collapsed.has(folder.id),
-        canAdmin:  viewer.isGM,
       };
     });
 
@@ -104,14 +103,9 @@ export class OrichalumApp extends HandlebarsApplicationMixin(ApplicationV2) {
         const visible = filterVisibleNotes(raw, viewer);
 
         itemNotes = visible
-          .sort((a, b) => b.createdAt - a.createdAt)
+          .sort((a, b) => a.createdAt - b.createdAt)  // oldest first
           .map(note => {
             const isEditing = (note.id === this._editingNoteId);
-            const openTableWarning = !viewer.isGM
-              && note.authorId === viewer.id
-              && note.visibility === VISIBILITY.PRIVATE
-              && game.settings.get(MODULE_ID, "playerPrivateVisibility") === PRIVATE_VISIBILITY_MODE.OPEN_TABLE;
-
             return {
               ...note,
               authorDisplay: note.authorName ?? game.users.get(note.authorId)?.name ?? "?",
@@ -119,12 +113,11 @@ export class OrichalumApp extends HandlebarsApplicationMixin(ApplicationV2) {
               isEditing,
               canEdit:       canEditNote(note, viewer) && !isEditing,
               canDelete:     canEditNote(note, viewer),
-              openTableWarning,
               renderedContent: isEditing
                 ? ""
                 : renderWikiLinks(_renderMarkdown(note.content ?? ""), allItems),
               draftContent:    isEditing ? this._draftContent    : "",
-              draftVisibility: isEditing ? this._draftVisibility : note.visibility,
+              draftVisibility: isEditing ? this._draftVisibility : normalizeVisibility(note.visibility),
             };
           });
 
@@ -136,16 +129,13 @@ export class OrichalumApp extends HandlebarsApplicationMixin(ApplicationV2) {
       }
     }
 
-    // New note slot (appended at top of itemNotes list in template)
+    // New note slot (appended at bottom of itemNotes list in template)
     const newNoteSlot = this._editingNoteId === "new" ? {
       id:              "new",
       isNew:           true,
       isEditing:       true,
       draftContent:    this._draftContent,
       draftVisibility: this._draftVisibility,
-      openTableWarning: !viewer.isGM
-        && this._draftVisibility === VISIBILITY.PRIVATE
-        && game.settings.get(MODULE_ID, "playerPrivateVisibility") === PRIVATE_VISIBILITY_MODE.OPEN_TABLE,
     } : null;
 
     return {
@@ -156,15 +146,9 @@ export class OrichalumApp extends HandlebarsApplicationMixin(ApplicationV2) {
       linksTo,
       characterFields,
       isCharacterItem: selectedItem?.type === ITEM_TYPE.CHARACTER,
-      selectedItemId: this._selectedItemId,
-      isGM:           viewer.isGM,
-      graphMode:      this._graphMode,
-      dirty:          this._dirty,
-      isEditingAny:   this._editingNoteId !== null,
-      visibilityOptions: [
-        { value: VISIBILITY.PRIVATE, label: game.i18n.localize("NEXUSNOTES.Visibility.Private") },
-        { value: VISIBILITY.PARTY,   label: game.i18n.localize("NEXUSNOTES.Visibility.Party")   },
-      ],
+      selectedItemId:  this._selectedItemId,
+      graphMode:       this._graphMode,
+      isEditingAny:    this._editingNoteId !== null,
     };
   }
 
@@ -244,7 +228,7 @@ export class OrichalumApp extends HandlebarsApplicationMixin(ApplicationV2) {
     content.querySelector(".btn-add-note")?.addEventListener("click", () => {
       this._editingNoteId   = "new";
       this._draftContent    = "";
-      this._draftVisibility = game.settings.get(MODULE_ID, "defaultNoteVisibility") ?? VISIBILITY.PRIVATE;
+      this._draftVisibility = game.settings.get(MODULE_ID, "defaultNoteVisibility") ?? VISIBILITY.SECRET;
       this._dirty           = false;
       this.render();
     });
@@ -256,7 +240,7 @@ export class OrichalumApp extends HandlebarsApplicationMixin(ApplicationV2) {
         if (!note) return;
         this._editingNoteId   = note.id;
         this._draftContent    = note.content ?? "";
-        this._draftVisibility = note.visibility;
+        this._draftVisibility = normalizeVisibility(note.visibility);
         this._dirty           = false;
         this.render();
       });
@@ -488,7 +472,7 @@ export class OrichalumApp extends HandlebarsApplicationMixin(ApplicationV2) {
         action: async () => {
           this._editingNoteId   = note.id;
           this._draftContent    = note.content ?? "";
-          this._draftVisibility = note.visibility;
+          this._draftVisibility = normalizeVisibility(note.visibility);
           this._dirty           = false;
           this.render();
         },
@@ -566,16 +550,22 @@ export class OrichalumApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
     const content    = this._draftContent;
     const visibility = this._draftVisibility;
+    const noteId     = this._editingNoteId;
 
-    if (this._editingNoteId === "new") {
+    // Clear editing state BEFORE the await so that the updateJournalEntryPage
+    // hook (which fires during the write) re-renders in view mode, not edit mode.
+    // Without this, the intermediate render shows the editor with a stale
+    // background, causing the apparent "background colour change" on save.
+    this._editingNoteId = null;
+    this._dirty         = false;
+
+    if (noteId === "new") {
       if (!this._selectedItemId) return;
       await OrichalumNote.create(this._selectedItemId, { content, visibility });
     } else {
-      await OrichalumNote.update(this._editingNoteId, { content, visibility });
+      await OrichalumNote.update(noteId, { content, visibility });
     }
 
-    this._editingNoteId = null;
-    this._dirty         = false;
     this.render();
   }
 
@@ -715,7 +705,7 @@ export class OrichalumApp extends HandlebarsApplicationMixin(ApplicationV2) {
     // Immediately open a new note
     this._editingNoteId   = "new";
     this._draftContent    = "";
-    this._draftVisibility = game.settings.get(MODULE_ID, "defaultNoteVisibility") ?? VISIBILITY.PRIVATE;
+    this._draftVisibility = game.settings.get(MODULE_ID, "defaultNoteVisibility") ?? VISIBILITY.SECRET;
     this._dirty           = false;
     this.render();
   }
@@ -833,7 +823,7 @@ export class OrichalumApp extends HandlebarsApplicationMixin(ApplicationV2) {
       if (newNote) {
         app._editingNoteId   = "new";
         app._draftContent    = "";
-        app._draftVisibility = game.settings.get(MODULE_ID, "defaultNoteVisibility") ?? VISIBILITY.PRIVATE;
+        app._draftVisibility = game.settings.get(MODULE_ID, "defaultNoteVisibility") ?? VISIBILITY.SECRET;
         app._dirty           = false;
       }
     }

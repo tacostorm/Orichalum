@@ -12,15 +12,13 @@ export class OrichalumNote {
   // ── Read ───────────────────────────────────────────────────────────────────
 
   /**
-   * Return all notes for a given item, sorted newest-first.
+   * Return all notes for a given item, unsorted.
    * @param {string} itemId
    * @returns {Promise<object[]>}
    */
   static async getByItem(itemId) {
     const data = await OrichalumStore.getData();
-    return (data.notes ?? [])
-      .filter(n => n.itemId === itemId)
-      .sort((a, b) => b.createdAt - a.createdAt);
+    return (data.notes ?? []).filter(n => n.itemId === itemId);
   }
 
   /**
@@ -40,10 +38,10 @@ export class OrichalumNote {
    * @param {string} itemId
    * @param {object} fields
    * @param {string} fields.content    HTML string from the rich text editor.
-   * @param {string} fields.visibility VISIBILITY.PRIVATE or VISIBILITY.PARTY
+   * @param {string} fields.visibility VISIBILITY.SECRET or VISIBILITY.PARTY
    * @returns {Promise<object>} The created note record.
    */
-  static async create(itemId, { content = "", visibility = VISIBILITY.PRIVATE } = {}) {
+  static async create(itemId, { content = "", visibility = VISIBILITY.SECRET } = {}) {
     let created;
     const now = Date.now();
     await OrichalumStore.mutate(data => {

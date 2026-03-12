@@ -138,14 +138,7 @@
       {{!-- Notes list --}}
       <div class="notes-list">
 
-        {{!-- New note editor (shown at top when creating) --}}
-        {{#if newNoteSlot}}
-          <div class="note-card note-editor-card">
-            {{> orichalum-note-editor note=newNoteSlot}}
-          </div>
-        {{/if}}
-
-        {{!-- Existing notes --}}
+        {{!-- Existing notes (oldest first) --}}
         {{#each itemNotes}}
           <div class="note-card{{#if this.isEditing}} is-editing{{/if}}" data-note-id="{{this.id}}">
             {{#if this.isEditing}}
@@ -153,11 +146,12 @@
             {{else}}
               {{!-- View mode --}}
               <div class="note-meta">
-                {{#if (eq this.visibility "private")}}
-                  <span class="vis-icon private" title="{{localize "NEXUSNOTES.Visibility.Private"}}">🔒</span>
+                {{!-- Show lock for "secret" and legacy "private" values; globe for party --}}
+                {{#unless (eq this.visibility "party")}}
+                  <span class="vis-icon secret" title="{{localize "NEXUSNOTES.Visibility.Secret"}}">🔒</span>
                 {{else}}
                   <span class="vis-icon party" title="{{localize "NEXUSNOTES.Visibility.Party"}}">🌐</span>
-                {{/if}}
+                {{/unless}}
                 <span class="note-author">{{this.authorDisplay}}</span>
                 <span class="note-time">· {{this.relativeTime}}</span>
                 {{#if this.canEdit}}
@@ -180,6 +174,14 @@
             <div class="notes-empty">{{localize "NEXUSNOTES.Note.NoNotes"}}</div>
           {{/unless}}
         {{/each}}
+
+        {{!-- New note editor (shown at bottom, matching notebook-style oldest-first order) --}}
+        {{#if newNoteSlot}}
+          <div class="note-card note-editor-card">
+            {{> orichalum-note-editor note=newNoteSlot}}
+          </div>
+        {{/if}}
+
       </div>
 
     {{else}}
@@ -195,17 +197,11 @@
 {{!-- ── NOTE EDITOR PARTIAL ─────────────────────────────────────────────── --}}
 {{#*inline "orichalum-note-editor"}}
   <div class="note-editor">
-    {{!-- Open Table warning --}}
-    {{#if note.openTableWarning}}
-      <div class="open-table-warning">
-        ⚠️ {{localize "NEXUSNOTES.Note.OpenTableWarning"}}
-      </div>
-    {{/if}}
     {{!-- Visibility + toolbar row --}}
     <div class="editor-controls">
       <select class="note-visibility-select">
-        <option value="private"{{#if (eq note.draftVisibility "private")}} selected{{/if}}>🔒 {{localize "NEXUSNOTES.Visibility.Private"}}</option>
-        <option value="party"  {{#if (eq note.draftVisibility "party")}}   selected{{/if}}>🌐 {{localize "NEXUSNOTES.Visibility.Party"}}</option>
+        <option value="secret" {{#unless (eq note.draftVisibility "party")}}selected{{/unless}}>🔒 {{localize "NEXUSNOTES.Visibility.Secret"}}</option>
+        <option value="party"  {{#if    (eq note.draftVisibility "party")}} selected{{/if}}>🌐 {{localize "NEXUSNOTES.Visibility.Party"}}</option>
       </select>
       <div class="editor-toolbar">
         <button type="button" class="toolbar-btn" data-cmd="bold"                title="Bold"><b>B</b></button>

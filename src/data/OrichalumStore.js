@@ -21,7 +21,6 @@ import {
   DATA_FOLDER_NAME,
   DATA_PAGE_NAME,
   DEFAULT_FOLDERS,
-  ITEM_TYPE,
 } from "../constants.js";
 
 /** @typedef {{ folders: object[], items: object[], notes: object[] }} StoreData */

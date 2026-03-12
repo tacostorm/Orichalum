@@ -37,7 +37,7 @@ export function computeLinksTo(item, allNotes, allItems, viewer) {
   // ── 2. Character field values ──────────────────────────────────────────────
   if (item.type === ITEM_TYPE.CHARACTER && item.characterFields) {
     const cf = item.characterFields;
-    for (const field of ["race", "home", "occupation", "lastSeen"]) {
+    for (const field of ["race", "home", "occupation", "faction", "lastSeen"]) {
       const val = cf[field];
       if (val?.trim()) rawNames.add(val.trim());
     }

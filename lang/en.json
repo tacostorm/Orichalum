@@ -14,19 +14,18 @@
     },
 
     "Graph": {
-      "ComingSoon": "Graph view coming in v0.2."
+      "ComingSoon": "Graph view coming soon."
     },
 
     "Visibility": {
-      "Private": "Private",
-      "Party":   "Party"
+      "Secret": "Secret",
+      "Party":  "Party"
     },
 
     "Note": {
-      "AddNote":         "+ Add Note",
-      "NoNotes":         "No notes yet. Click '+ Add Note' to create one.",
-      "Placeholder":     "Write your note here… use [[Item Name]] to link to items.",
-      "OpenTableWarning": "Your GM can still read this note. This can be changed in the module settings."
+      "AddNote":     "+ Add Note",
+      "NoNotes":     "No notes yet. Click '+ Add Note' to create one.",
+      "Placeholder": "Write your note here… use [[Item Name]] to link to items."
     },
 
     "Item": {
@@ -90,16 +89,23 @@
     },
 
     "Settings": {
-      "PlayerPrivateVisibility": {
-        "Name":        "Player Private Note Visibility",
-        "Hint":        "Controls whether the GM can read private notes written by players.",
-        "SecretKeeper": "Secret Keeper — private notes are truly private",
-        "OpenTable":   "Open Table — GM can read all notes",
-        "Tooltip":     "Secret Keeper: Private notes are truly private — even the GM cannot read them.\nOpen Table: The GM can read all notes including private ones. Players are warned when writing private notes."
-      },
       "DefaultNoteVisibility": {
         "Name": "Default Note Visibility",
         "Hint": "The visibility pre-selected when you create a new note."
+      },
+      "DangerZone": {
+        "Title":            "Danger Zone",
+        "Desc":             "These actions are permanent and cannot be undone. A backup file will be downloaded automatically before any data is deleted.",
+        "ResetMy":          "Reset My Notes",
+        "ResetMyTitle":     "Reset My Notes",
+        "ResetMyContent":   "This will permanently delete all of your personal notes. This cannot be undone. A backup will be downloaded first.",
+        "ResetWorld":       "Full World Reset",
+        "ResetWorldTitle":  "Full World Reset",
+        "ResetWorldContent": "This will permanently delete ALL Orichalum data for every player in this world. Type RESET below to continue.",
+        "ResetWorldFinal":  "This will permanently delete ALL Orichalum data for every player in this world. This cannot be undone. Are you absolutely sure?",
+        "ResetWorldBtn":    "Continue",
+        "TypeReset":        "Type RESET to confirm",
+        "ResetSuccess":     "Orichalum data has been reset. A backup was downloaded to your computer."
       }
     }
   }

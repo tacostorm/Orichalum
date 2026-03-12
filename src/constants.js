@@ -6,32 +6,10 @@ export const MODULE_ID = "orichalum";
  * @enum {string}
  */
 export const VISIBILITY = {
-  /** Visible only to the author (and GM when playerPrivateVisibility = "openTable"). */
-  PRIVATE: "private",
+  /** Visible to the author and the GM only. */
+  SECRET: "secret",
   /** Visible to all players and the GM. */
   PARTY: "party",
-};
-
-/**
- * Player private note visibility world setting values.
- * @enum {string}
- */
-export const PRIVATE_VISIBILITY_MODE = {
-  /** Private notes are truly private — the GM cannot read them. */
-  SECRET_KEEPER: "secretKeeper",
-  /** The GM can read all notes including private ones. Players are warned. */
-  OPEN_TABLE: "openTable",
-};
-
-/**
- * Socket event type strings.
- * @enum {string}
- */
-export const SOCKET_EVENTS = {
-  /** Any client → GM: perform a write operation on the data store. */
-  WRITE_REQUEST: "writeRequest",
-  /** GM → all clients: data was updated, re-render. */
-  DATA_UPDATED: "dataUpdated",
 };
 
 /**

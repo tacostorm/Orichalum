@@ -10,13 +10,13 @@
  */
 
 import { OrichalumStore }  from "./OrichalumStore.js";
-import { canSeeNote }       from "../helpers/visibility.js";
 import { ITEM_TYPE }        from "../constants.js";
 
 /** @typedef {object} CharacterFields
  * @property {string}   race
  * @property {string}   home
  * @property {string}   occupation
+ * @property {string}   faction
  * @property {string}   lastSeen
  * @property {string[]} knownAccomplices
  * @property {string[]} enemies
@@ -24,7 +24,7 @@ import { ITEM_TYPE }        from "../constants.js";
 
 /** @returns {CharacterFields} */
 function emptyCharacterFields() {
-  return { race: "", home: "", occupation: "", lastSeen: "", knownAccomplices: [], enemies: [] };
+  return { race: "", home: "", occupation: "", faction: "", lastSeen: "", knownAccomplices: [], enemies: [] };
 }
 
 export class OrichalumItem {
@@ -82,22 +82,6 @@ export class OrichalumItem {
     return items.find(i => i.name.toLowerCase() === norm);
   }
 
-  /**
-   * Return all items visible to the given user (at least one visible note).
-   * @param {User}     viewer
-   * @param {object[]} [allNotes] Pre-loaded notes array (avoids re-fetching).
-   * @returns {Promise<object[]>}
-   */
-  static async getVisible(viewer, allNotes = null) {
-    const data  = await OrichalumStore.getData();
-    const notes = allNotes ?? (data.notes ?? []);
-    return (data.items ?? []).filter(item => {
-      const itemNotes = notes.filter(n => n.itemId === item.id);
-      // An item with no notes is hidden from all users
-      return itemNotes.some(n => canSeeNote(n, viewer));
-    });
-  }
-
   // ── Write ──────────────────────────────────────────────────────────────────
 
   /**
@@ -146,6 +130,10 @@ export class OrichalumItem {
 
   /**
    * Move an item to a different folder.
+   * When moved into the Characters folder the item gains CHARACTER type and
+   * any missing character fields are initialised with empty values.
+   * When moved out of the Characters folder the item reverts to STANDARD type
+   * (stored characterFields are retained but not displayed).
    * @param {string} id
    * @param {string} newFolderId
    * @returns {Promise<void>}
@@ -153,7 +141,21 @@ export class OrichalumItem {
   static async move(id, newFolderId) {
     await OrichalumStore.mutate(data => {
       const item = (data.items ?? []).find(i => i.id === id);
-      if (item) item.folderId = newFolderId;
+      if (!item) return;
+
+      item.folderId = newFolderId;
+
+      const destFolder  = (data.folders ?? []).find(f => f.id === newFolderId);
+      const isCharFolder = destFolder?.name === "Characters";
+
+      if (isCharFolder && item.type !== ITEM_TYPE.CHARACTER) {
+        item.type = ITEM_TYPE.CHARACTER;
+        // Merge existing fields (if any) with empty defaults so all keys exist
+        item.characterFields = { ...emptyCharacterFields(), ...(item.characterFields ?? {}) };
+      } else if (!isCharFolder && item.type === ITEM_TYPE.CHARACTER) {
+        item.type = ITEM_TYPE.STANDARD;
+        // characterFields data is preserved but won't be displayed in non-character items
+      }
     });
   }
 
